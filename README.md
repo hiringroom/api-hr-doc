@@ -7,7 +7,8 @@
 
 # Introducción
 
-Para empezar,aparte de sus credenciales para acceder a HiringRoom (username y password) el cliente debe obtener sus credenciales para el API, su **client_id** y su **client_secret** que puede obtenerlos desde HiringRoom.
+El uso de esta documentación y del API deberá realizarse por una persona que posea conocimientos en programación y en el uso de REST Api.
+El cliente debe obtener sus credenciales de acceso a HiringRoom y sus credenciales de API, es decir el **client_id**  y el **client_secret**. Estas últimas podrá obtenerlas en HiringRoom. 
 
 El **API-HR** posee una interfaz swagger para poder ver y probar los endpoints disponibles , la misma se encuentra en https://api.hiringroom.com/
 
