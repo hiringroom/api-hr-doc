@@ -86,8 +86,19 @@ Uso del refresh token:
 }
 ```
 - **grand_type** : en este endpoint siempre es **refresh_token**
-- **client_id** : el **client_id **que solicita el token
+- **client_id** : el **client_id** que solicita el token
 - **refresh_token** : el **refresh_token** obtenido en el login. 
+
+3. Nuevamente, obtendremos un Json como el que obtenemos al hacer un login, con un nuevo access_token y un nuevo refresh_token
+
+```
+    {
+     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IktaXNlbnRyZXZpc3RhcyIsInNjcCI6WyJ1c2VyczpyZWFkIiwicG9zdHVsYW50czpyZWFkIiwicG9zdHVsYW50czp3cml0ZSIsInZhY2FuY2llczpyZWFkIiwidmFjYW5Njb3VudF9sb2NhbGl0aWVzOnJlYWQiLCJhY2NvdW50X2xvZ29zOnJlYWQiLCJhY2NvdW50X3N0YWdlczpyZWFkIiwiY29tdW5lczpyZWFkIiwiYWNjb3V",
+     "expiresIn": 86370,
+     "tokenType": "bearer",
+     "refreshToken": "zAKGpl0ETvrMZyy57C0Ty2Qn3iaQiG4WoSq8W8lkJpj34Et45BIbQzbwWIgRkvXF0jpcQGyrfYRSjavcw0XC81EBLP2zy79qSdHBKAiLtT8HtF4ucSl85nN2Cn7HoHd9RSqCEG0TFTKd85ZMxU1GftwDJzewNsccGciSXDINOI9Mx5W5Lf6zZmNAffKRGqYbo939Xi1pC"
+    }
+```
 
 ## Creación de una vacante
 
@@ -117,7 +128,7 @@ Desplegamos el apartado **vacantes**, el endpoint a usar es **PUT /vacancies**
 * tipoEmpleo 
 * razonBusqueda 
 
-Nota: Puede que haya campos específicos para cada tipo de cuenta (al hacer el request obtendrá un error de validación indicándolo), por ejemplo area/subarea son parámetros para cuentas tipo **empresa** y cliente/subcliente para cuentas tipo **consultora**.
+Nota: Puede que haya campos específicos para cada tipo de cuenta (al hacer el request obtendrá un error de validación indicándolo), por ejemplo area/subarea son parámetros para cuentas tipo **empresa** mientras que cliente/subcliente son para cuentas tipo **consultora**.
 
 ### Consultando otros endpoints
 
@@ -156,20 +167,7 @@ Por lo que, el Json de ejemplo nos podría quedar de este modo, agregándole 2 p
 
 ```
 {
-
-  "ubicacionId": "5ebb0053f40cf01b74f1b274",
-  "area": "5c813949377caf355c95bc2e",
-  "subarea": "5e66aa546e04883414002a8d",
-  "descripcionPuesto": "Este puesto es un ejemplo de creacion de vacante desde el API",
-  "areaTrabajo": 19,
-  "subareaTrabajo": 2621,
-  "jerarquia": 1,
-  "tags": [
-    "test", "api"
-  ],
-  "razonBusqueda": 1,
-  "tipoBusqueda": "externa",
-  "preguntasSimples": [
+ "preguntasSimples": [
     {
       "pregunta": "Experiencia con Api REST"
     },
@@ -201,33 +199,12 @@ Para adjuntar una pregunta múltiple en el Json de vacante basta con añadirle e
 ``` 
 
 * **pregunta** es el texto de la pregunta
-* **opciones** array de opciones para esa pregunta, las opciones pueden descalificar o no un postulante (minimo tiene que haber una opcion que no descalifique, ademas no es ogligatorio). 
+* **opciones** array de opciones para esa pregunta, las opciones pueden descalificar o no un postulante (mínimo debe haber una opción que no descalifique, ademas no es obligatorio. El mínimo de opciones a agregar son 2). 
 
 Por lo que, el Json de ejemplo nos podría quedar de este modo, agregándole 2 preguntas múltiples : 
 
 ```
 {
-
-  "ubicacionId": "5ebb0053f40cf01b74f1b274",
-  "area": "5c813949377caf355c95bc2e",
-  "subarea": "5e66aa546e04883414002a8d",
-  "descripcionPuesto": "Este puesto es un ejemplo de creacion de vacante desde el API",
-  "areaTrabajo": 19,
-  "subareaTrabajo": 2621,
-  "jerarquia": 1,
-  "tags": [
-    "test", "api"
-  ],
-  "razonBusqueda": 1,
-  "tipoBusqueda": "externa",
-  "preguntasSimples": [
-    {
-      "pregunta": "Experiencia con Api REST"
-    },
-    {
-      "pregunta": "Experiencia con Swagger"
-    }
-  ],
   "preguntasMultiples": [
     {
       "pregunta": "Sabe usar swagger?",
@@ -281,7 +258,47 @@ Una vez obtenidos todos los campos necesarios para crear una vacante, podemos te
     "test", "api"
   ],
   "razonBusqueda": 1,
-  "tipoBusqueda": "externa"
+  "tipoBusqueda": "externa",
+  "preguntasSimples": [
+    {
+      "pregunta": "Experiencia con Api REST"
+    },
+    {
+      "pregunta": "Experiencia con Swagger"
+    }
+  ],
+  "preguntasMultiples": [
+    {
+      "pregunta": "Sabe usar swagger?",
+      "opciones": [
+        {
+          "opcion": "Si",
+          "descalifica": false
+        },
+        {
+          "opcion": "No",
+          "descalifica": true
+        }
+      ]
+    },
+    {
+      "pregunta": "Entiende la documentacion sobre el API?",
+      "opciones": [
+        {
+          "opcion": "Mucho",
+          "descalifica": false
+        },
+        {
+          "opcion": "Poco",
+          "descalifica": false
+        },
+        {
+          "opcion": "Nada",
+          "descalifica": false
+        }
+      ]
+    }
+  ] 
 }
 ```
 
