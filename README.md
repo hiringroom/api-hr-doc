@@ -4,7 +4,7 @@
 - [Interfaz swagger](#interfaz-swagger)
 - [Inicio de Sesión](#inicio-de-sesión)
 - [Creación de una vacante](#creación-de-una-vacante)
-- [Manejo de errores](#manejo_de_errores)
+- [Manejo de errores](#manejo-de-errores)
 
 # Introducción
 
@@ -337,14 +337,14 @@ Si se visita el dashoboard de la cuenta de HiringRoom se puede observar que efec
 
 La lista de status codes que maneja el HR-API son
 
-* **200** Successfull (Operacion exitosa)
-* **201** Successfull (Modificacion de algun recurso del API exitosa)
-* **202** Successfull, no data (Operacion exitosa sin resultado)
-* **400** Invalid ID supplied Error (ID proveido es invalido)
-* **401** Authentication Error (Error de autenticacion)
+* **200** Successfull (Operación exitosa)
+* **201** Successfull (Modificación de algún recurso del API exitosa)
+* **202** Successfull, no data (Operación exitosa sin resultado)
+* **400** Invalid ID supplied Error (ID proveído es invalido)
+* **401** Authentication Error (Error de autenticación)
 * **403** Forbidden Error (No se permite acceder a ese recurso)
 * **404** Not Found Error (Recurso no encontrado)
-* **422** Validation Error (Error de validacion)
+* **422** Validation Error (Error de validación)
 * **500** Internal Server Error (Error interno)
 
 La estructura que devuelve el API-HR para los codes 2XX se especifica en cada endpoint en el swagger
