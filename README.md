@@ -338,16 +338,26 @@ Si se visita el dashoboard de la cuenta de HiringRoom se puede observar que efec
 La lista de status codes que maneja el HR-API son
 
 * **200** Successfull (Operación exitosa)
-* **201** Successfull (Modificación de algún recurso del API exitosa)
+* **201** Successfull (creacion exitosa de algún recurso en el API)
 * **202** Successfull, no data (Operación exitosa sin resultado)
-* **400** Invalid ID supplied Error (ID proveído es invalido)
+* **400** Bad Request (Algun dato proveido es invalido)
 * **401** Authentication Error (Error de autenticación)
 * **403** Forbidden Error (No se permite acceder a ese recurso)
 * **404** Not Found Error (Recurso no encontrado)
 * **422** Validation Error (Error de validación)
 * **500** Internal Server Error (Error interno)
 
-La estructura que devuelve el API-HR para los codes 2XX se especifica en cada endpoint en el swagger
+La estructura que devuelve el API-HR para los codes 200, 201 se especifica en cada endpoint en el swagger
+
+La estructura que devuelve el API-HR para los codes 202 es la siguiente: 
+
+```
+{
+    "result": {
+        "message": "There are no results for this search"
+    }
+}
+```
 
 La estructura que devuelve el API-HR para los codes 400, 401, 403 y 404 es la siguiente: 
 
