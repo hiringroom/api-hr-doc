@@ -1,17 +1,37 @@
 # Contenido
 
 - [Introducción](#introducción)
+- [Client ID y Client secret](#client-id-y-client-secret)
 - [Interfaz swagger](#interfaz-swagger)
 - [Inicio de Sesión](#inicio-de-sesión)
 - [Creación de una vacante](#creación-de-una-vacante)
-- [Manejo de errores](#manejo-de-errores)
 
 # Introducción
 
-El uso de esta documentación y del API deberá realizarse por una persona que posea conocimientos en programación y en el uso de REST Api.
-El cliente debe obtener sus credenciales de acceso a HiringRoom y sus credenciales de API, es decir el **client_id**  y el **client_secret**. Estas últimas podrá obtenerlas en HiringRoom. 
+Para empezar,aparte de sus credenciales para acceder a HiringRoom (username y password) el cliente debe obtener sus credenciales para el API, su **client_id** y su **client_secret** que puede obtenerlos desde HiringRoom.
 
 El **API-HR** posee una interfaz swagger para poder ver y probar los endpoints disponibles , la misma se encuentra en https://api.hiringroom.com/
+
+### Client ID y Client secret
+
+El **client_id** y el **client_secret** son datos fundamentales a la hora de usar el API de Hiringroom (a partir de ahora API-HR). Si ellos no es posible crear el **access_token** requerido para usar el API-HR. 
+Para poder obtenerlos, debe iniciar sesión con su cuenta de HiringRoom y nos dirigimos a **Configuracion->Preferencias del sistema**
+
+![6](https://i.imgur.com/YW3yMMD.png)
+
+Una vez dentro de las preferencias del sistema nos dirigimos a **Integración API HR** y hacemos click en **Solicitar credenciales**. Obtendremos un Json con las credenciales
+
+![7](https://i.imgur.com/5KkYhUU.png)
+
+```
+{
+	"client_id" : "[CLIENT_ID]"
+	"client_secret" : "[CLIENT_SECRET]"
+}
+```
+
+Nota: Una vez obtenidas las credenciales deben ser almacenadas en algún lugar de confianza. Una vez fuera de esa vista, o si se refresca la pagina, las credenciales no serán visibles nuevamente, debiendo repetir el proceso para adquirirlas nuevamente. _**Se debe tener en cuenta que si se adquieren nuevas credenciales, las anteriores quedaran inutilizables**_. 
+
 
 ### Interfaz swagger
 
@@ -332,56 +352,6 @@ O el request puede haberse hecho satisfactoriamente (code 201) obteniendo un Jso
 Nota: el id que obtenemos el es Id de la nueva vacante creada, que confirma que fue creada satisfactoriamente.
 
 Si se visita el dashoboard de la cuenta de HiringRoom se puede observar que efectivamente la vacante esta creada. 
-
-### Manejo de errores
-
-La lista de status codes que maneja el HR-API son
-
-* **200** Successfull (Operación exitosa)
-* **201** Successfull (creacion exitosa de algún recurso en el API)
-* **202** Successfull, no data (Operación exitosa sin resultado)
-* **400** Bad Request (Algun dato proveido es invalido)
-* **401** Authentication Error (Error de autenticación)
-* **403** Forbidden Error (No se permite acceder a ese recurso)
-* **404** Not Found Error (Recurso no encontrado)
-* **422** Validation Error (Error de validación)
-* **500** Internal Server Error (Error interno)
-
-La estructura que devuelve el API-HR para los codes 200, 201 se especifica en cada endpoint en el swagger
-
-La estructura que devuelve el API-HR para los codes 202 es la siguiente: 
-
-```
-{
-    "result": {
-        "message": "There are no results for this search"
-    }
-}
-```
-
-La estructura que devuelve el API-HR para los codes 400, 401, 403 y 404 es la siguiente: 
-
-```
-{
-  "message": "string",
-  "errors": {
-    "message": "string"
-  }
-}
-```
-La estructura que devuelve el API-HR para el code 422 es el siguiente: 
-
-```
-{
-  "message": "Validation Error",
-  "errors": [
-    {
-      "field": "string",
-      "message": "string"
-    }
-  ]
-}
-```
 
 
 
