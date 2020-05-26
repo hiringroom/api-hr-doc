@@ -5,6 +5,7 @@
 - [Interfaz swagger](#interfaz-swagger)
 - [Inicio de Sesión](#inicio-de-sesión)
 - [Creación de una vacante](#creación-de-una-vacante)
+- [Manejo de errores](#manejo-de-errores)
 
 # Introducción
 
@@ -353,5 +354,53 @@ Nota: el id que obtenemos el es Id de la nueva vacante creada, que confirma que 
 
 Si se visita el dashoboard de la cuenta de HiringRoom se puede observar que efectivamente la vacante esta creada. 
 
+### Manejo de errores
 
+La lista de status codes que maneja el HR-API son
+
+* **200** Successfull (Operación exitosa)
+* **201** Successfull (creacion exitosa de algún recurso en el API)
+* **202** Successfull, no data (Operación exitosa sin resultado)
+* **400** Bad Request (Algun dato proveido es invalido)
+* **401** Authentication Error (Error de autenticación)
+* **403** Forbidden Error (No se permite acceder a ese recurso)
+* **404** Not Found Error (Recurso no encontrado)
+* **422** Validation Error (Error de validación)
+* **500** Internal Server Error (Error interno)
+
+La estructura que devuelve el API-HR para los codes 200, 201 se especifica en cada endpoint en el swagger
+
+La estructura que devuelve el API-HR para los codes 202 es la siguiente: 
+
+```
+{
+    "result": {
+        "message": "There are no results for this search"
+    }
+}
+```
+
+La estructura que devuelve el API-HR para los codes 400, 401, 403 y 404 es la siguiente: 
+
+```
+{
+  "message": "string",
+  "errors": {
+    "message": "string"
+  }
+}
+```
+La estructura que devuelve el API-HR para el code 422 es el siguiente: 
+
+```
+{
+  "message": "Validation Error",
+  "errors": [
+    {
+      "field": "string",
+      "message": "string"
+    }
+  ]
+}
+```
 
