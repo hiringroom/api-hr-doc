@@ -5,6 +5,7 @@
 - [Interfaz swagger](#interfaz-swagger)
 - [Inicio de Sesión](#inicio-de-sesión)
 - [Creación de una vacante](#creación-de-una-vacante)
+- [Publicar una vacante y obtener postulantes](#publicar-una-vacante-y-obtener-postulantes)
 - [Manejo de errores](#manejo-de-errores)
 
 # Introducción
@@ -34,7 +35,7 @@ Una vez dentro de las preferencias del sistema nos dirigimos a **Integración AP
 Nota: Una vez obtenidas las credenciales deben ser almacenadas en algún lugar de confianza. Una vez fuera de esa vista, o si se refresca la pagina, las credenciales no serán visibles nuevamente, debiendo repetir el proceso para adquirirlas nuevamente. _**Se debe tener en cuenta que si se adquieren nuevas credenciales, las anteriores quedaran inutilizables**_. 
 
 
-### Interfaz swagger
+# Interfaz swagger
 
 Una pequeña explicación de la interfaz para entender como funciona
 - Estructura basica
@@ -47,7 +48,7 @@ Una pequeña explicación de la interfaz para entender como funciona
 
 ![3](https://i.imgur.com/AvX1MxV.png)
 
-## Inicio de Sesión
+# Inicio de Sesión
 
 Para acceder a los recursos privados que provee el API de Hiringroom (a partir de ahora API-HR) es necesario autenticarse iniciando sesión en la misma. El API-HR soporta dos tipos de sesión: a nivel de usuario y a nivel aplicación de terceros.
 
@@ -123,7 +124,7 @@ Uso del refresh token:
     }
 ```
 
-## Creación de una vacante
+# Creación de una vacante
 
 Aquí se ejemplifica la creación de una vacante, explicando los pasos involucrados necesarios.
 
@@ -354,7 +355,250 @@ Nota: el id que obtenemos el es Id de la nueva vacante creada, que confirma que 
 
 Si se visita el dashoboard de la cuenta de HiringRoom se puede observar que efectivamente la vacante esta creada. 
 
-### Manejo de errores
+# Publicar una vacante y obtener postulantes
+
+Por el momento esta funcionalidad soporta publicación en los siguientes portales : 
+
+* Portales de Bumeran (Bumeran, Konzerta, Laborum, Multitrabajos)
+
+Para poder hacer uso de esta funcionalidad usaremos el endpoint **PUT /vacancies/{idVacancy}/publish**
+Indicaremos cual es la vacante que queremos publicar y completaremos el body **publishRequest**: 
+
+```
+{
+  "portales": [
+    {
+      "portalId": 1
+    }
+  ]
+}
+```
+**portalId** : Lo podemos obtener del endpoint **GET /common/jobPortals**
+
+### Publicacion en portales de Bumeran
+
+Para publicar en un portal de Bumeran debemos tener en cuenta lo siguiente: 
+
+* Si en **publishRequest** solo indicamos el **"portalId"** el aviso solo se guardara como borrador en el portal de Bumeran (tambien se relacionara este aviso a la vacante de Hiringroom indicada.
+* Si queremos que el aviso se publique debemos agregar 2 parametros junto con **"portalId"**: **planPublicacionId** y **paisPublicacionId** 
+
+```
+{
+  "portales": [
+    {
+      "portalId": 0,
+      "planPublicacionId": 0,
+      "paisPublicacionId": 0
+    }
+  ]
+}
+```
+* **planPublicacionId** : Lo podemos obtener del endpoint **GET /account/integrations/{portalId}/planes_publicacion** , obteniendo los planes de publicacion disponibles. 
+
+```
+{
+  "planes": [
+    {
+      "id": 30,
+      "nombre": "Simple",
+      "planPublicacionId": 70,
+      "disponibles": 9999 
+    },
+    {
+      "id": 1002204,
+      "nombre": "Avisos Talento",
+      "planPublicacionId": 1020,
+      "disponibles": 9999 
+    },
+    {
+      "id": 1003192,
+      "nombre": "Aviso Tecnología",
+      "planPublicacionId": 2002,
+      "disponibles": 9999 
+    }
+  ]
+}
+```
+* **paisPublicacionId** : Lo podemos obtener del endpoint **GET /common/countries**
+
+Entonces, si quisiéramos publicar un Aviso Tecnología en Bumeran para el país Argentina, el **publishRequest** nos quedaría así: 
+
+```
+{
+  "portales": [
+    {
+      "portalId": 1,
+      "planPublicacionId": 1003192,
+      "paisPublicacionId": 1
+    }
+  ]
+}
+```
+
+**IMPORTANTE** : 
+* Para completar el campo **planPublicacionId** debemos incluir el **"id"** obtenido del endpoint correspondiente. 
+* Si el **"planPublicacionId"** no se correspondiese con el **"paisPublicacionId"** (en otras palabras, que para ese país no hay stock de ese plan de publicación), el aviso se guardara como borrador.
+
+### Ejemplos  
+
+* En el siguiente ejemplo no se indica el plan de publicación: 
+
+```
+{
+  "portales": [
+    {
+      "portalId": 1
+    }
+  ]
+}
+```
+El request resultado seria: 
+
+```
+{
+  "result": {
+    "bumeran": {
+      "aviso": {
+         "result": "success",
+         "message": "El aviso ha sido creado.",
+         "idAviso": 1113978946
+      },
+      "publicacion": {
+         "result": "error",
+         "message": "El aviso no ha sido publicado: No se definio el plan de publicacion"
+      }
+    }
+  }
+}
+```
+
+* En el siguiente ejemplo, la vacante HiringRoom ya estaba vinculada con otro aviso Bumeran: 
+
+```
+{
+  "portales": [
+    {
+      "portalId": 1
+    }
+  ]
+}
+```
+El request resultado seria: 
+
+```
+{
+  "result": {
+    "bumeran": {
+      "aviso": {
+         "result": "error",
+         "message": "Esta vacante ya se encuentra relacionada con un aviso",
+         "idAviso": "1113978941"
+      }
+    }
+  }
+}
+```
+
+* En el siguiente ejemplo publicamos un aviso Tecnologia pais Argentina: 
+
+```
+{
+  "portales": [
+    {
+      "portalId": 1,
+      "planPublicacionId": 1003192,
+      "paisPublicacionId": 1
+    }
+  ]
+}
+```
+El request resultado seria: 
+ 
+```
+{
+  "result": {
+    "bumeran": {
+      "aviso": {
+         "result": "success",
+         "message": "El aviso ha sido creado.",
+         "idAviso": 1113978946
+      },
+      "publicacion": {
+         "result": "success",
+         "message": "El aviso ha sido publicado con exito"
+      }
+    }
+  }
+}
+```
+### Obtención de postulantes desde los avisos de Bumeran
+
+Para poder obtener los postulantes desde Bumeran es necesario contar con el **idAviso** correspondiente (que nos devuelve el API-HR a la hora de publicar un aviso en Bumeran por ejemplo).
+
+Para poder obtener los postulantes usaremos el endpoint **GET /integrations/bumeran/avisos/{idAviso}/postulants/** 
+
+**IMPORTANTE** El API-HR no tiene manipulación sobre los datos obtenidos de los postulantes de Bumeran, esto quiere decir que los mismos se muestran tal cual los obtiene HiringRoom desde Bumeran. Los datos pueden variar según los criterios o restricciones que tenga Bumeran sobre la cuenta vinculada, sin que HiringRoom tenga incidencia o responsabilidad.
+
+Una vez obtenidos los postulantes, tendremos como respuesta un JSON similar a este (solo se muestran algunos campos, resaltando la estructura)
+
+```
+{
+  "total": 1,
+  "size": 20,
+  "postulants": [
+    {
+      "salarioPreferencia": null,
+      "fechaPostulacion": "23-01-2020",
+      "estado": "LEIDO",
+      "extractoCurriculum": {
+        "nombre": "Luis",
+        "apellido": "Lujan",
+        "experienciasLaborales": [{}],
+        "estudios": [{}],
+        "id": 1042083763,
+        "id_cv": 1042083763
+      },
+      "id": 10964244860,
+      "id_postulacion": 10964244860,
+    }
+  ]
+```
+
+* **id_cv** : Es el identificador del CV del postulante
+* **id_postulacion** : Es el identificador de la postulacion en el aviso del postulante
+
+### Obtención del full cv de un postulante
+
+El endpoint anterior obtiene extractos de las postulaciones de los postulantes (no obtiene el cv completo de cada postulante), para poder obtener el cv completo del postulante usaremos el endpoint **GET /integrations/bumeran/postulaciones/{idPostulacion}/curriculums/{idCv}/full**
+
+**AVISO IMPORTANTE** El uso de este endpoint puede ocasionar el consumo de créditos adicionales de vistas de su cuenta de Bumeran (por ejemplo cuando el aviso este vencido e intente acceder al postulante).
+
+Para poder utilizar este endpoint necesitamos 2 datos que los obtenemos del endpoint anterior: **id_cv** y **id_postulacion**. 
+
+**IMPORTANTE** Al igual que el endpoint anterior, la obtención y el formato de datos del cv del postulante esta sujeto a Bumeran.
+
+Al realizar el request, obtendremos un JSON con un formato similar a este (se omiten algunos campos para resaltar la estructura)
+
+```
+{
+  "descripcion": null,
+  "referencias": null,
+  "estudios": [{}],
+  "experienciasLaborales": [{}],
+  "conocimientosNormalizados": [{}],
+  "conocimientosDesnormalizados": [{}],
+  "datosPersonales": {
+    "email": "info@hiringroom.com",
+    "nombre": "Luis",
+    "apellido": "Lujan",
+    "id": 1047346500
+  },
+  "fechaUltimaModificacion": "23-01-2020 23:14",
+  "id": 1042083763
+}
+```
+
+# Manejo de errores
 
 La lista de status codes que maneja el HR-API son
 
