@@ -677,6 +677,6 @@ El link de autorización , tiene la siguiente forma:
 
 Una vez que se genera la url para el cliente, el cliente (una vez tenga una sesión iniciada en HiringRoom o inicie una nueva en el proceso) verá esta pantalla para dar permiso al third-party:
 
-![8](https://imgur.com/8x3GgvV)
+![8](https://i.imgur.com/8x3GgvV.png)
 
 
