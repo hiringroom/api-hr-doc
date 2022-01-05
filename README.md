@@ -650,4 +650,33 @@ La estructura que devuelve el API-HR para el code 422 es el siguiente:
 ```
 # Integración third-party
 
+El API HR está preparado para integrarse con aplicaciones de terceros (third-party). Para ello, debe pedir al asesor comercial, de soporte o tecnología que le facilite los accesos necesarios para poder realizar la integración. Estos accesos son el **client_id** y el **client_secret**. A su vez, debe proveerle a dicho asesor la siguiente información para poder obtener los accesos correspondientes:
+
+**fullname** : Nombre completo de la aplicación third-party
+**description** : Descripción completa de lo que hace la aplicación third-party
+**description_link** (opcional) : URL donde se describa o se redirija a la aplicación third-party
+**url_pic** : URL del logo del third-party.
+**redirect_uri**: URL de redirección en donde el third-party obtendrá el codigo de autorización una vez que el cliente autorice la aplicación.
+
+El protocolo de autenticación que usa el API HR para integraciones es el protocolo OAuth2. 
+
+### Obteniendo el token de autorización 
+
+Para que la aplicación third-party obtenga el **AccessToken** correspondiente para realizar acciones con la cuenta del cliente, primeramente debe pasar por un proceso de autorización en donde el cliente autoriza al third-party para que pueda hacer uso de los datos requeridos, una vez obtenido el codigo de autorización, se puede obtener el **AccessToken**.
+
+El link de autorización , tiene la siguiente forma:
+
+```
+{
+	https://api.hiringroom.com/v0/oauth2/authorization?response_type=authcode&client_id=[CLIENT_ID]&account=[ACCOUNTNAME]&state=[STATE]
+}
+```
+   - **CLIENT_ID**: client_id que se provee.
+   - **ACCOUNTNAME**: Subdominio de la cuenta del cliente
+   - **STATE**: Estado que el third-party desee mantener en la url (ejemplo: un parametro, un email, un nombre, etc)
+
+Una vez que se genera la url para el cliente, el cliente (una vez tenga una sesión iniciada en HiringRoom o inicie una nueva en el proceso) verá esta pantalla para dar permiso al third-party:
+
+![8](https://imgur.com/8x3GgvV)
+
 
