@@ -652,11 +652,11 @@ La estructura que devuelve el API-HR para el code 422 es el siguiente:
 
 El API HR está preparado para integrarse con aplicaciones de terceros (third-party). Para ello, debe pedir al asesor comercial, de soporte o tecnología que le facilite los accesos necesarios para poder realizar la integración. Estos accesos son el **client_id** y el **client_secret**. A su vez, debe proveerle a dicho asesor la siguiente información para poder obtener los accesos correspondientes:
 
-**fullname** : Nombre completo de la aplicación third-party
-**description** : Descripción completa de lo que hace la aplicación third-party
-**description_link** (opcional) : URL donde se describa o se redirija a la aplicación third-party
-**url_pic** : URL del logo del third-party.
-**redirect_uri**: URL de redirección en donde el third-party obtendrá el codigo de autorización una vez que el cliente autorice la aplicación.
+   - **fullname** : Nombre completo de la aplicación third-party.
+   - **description** : Descripción completa de lo que hace la aplicación third-party.
+   - **description_link** (opcional) : URL donde se describa o se redirija a la aplicación third-party.
+   - **url_pic** : URL del logo del third-party.
+   - **redirect_uri**: URL de redirección en donde el third-party obtendrá el codigo de autorización una vez que el cliente autorice la aplicación.
 
 El protocolo de autenticación que usa el API HR para integraciones es el protocolo OAuth2. 
 
