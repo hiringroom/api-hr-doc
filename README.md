@@ -7,7 +7,7 @@
 - [Creación de una vacante](#creación-de-una-vacante)
 - [Publicar una vacante y obtener postulantes](#publicar-una-vacante-y-obtener-postulantes)
 - [Manejo de errores](#manejo-de-errores)
-- [Integracion third-party](#integracion-third-party)
+- [Integración third-party](#integración-third-party)
 
 # Introducción
 
@@ -648,6 +648,6 @@ La estructura que devuelve el API-HR para el code 422 es el siguiente:
   ]
 }
 ```
-# Integracion third-party
+# Integración third-party
 
 
