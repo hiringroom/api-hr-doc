@@ -667,9 +667,7 @@ Para que la aplicación third-party obtenga el **AccessToken** correspondiente p
 El link de autorización , tiene la siguiente forma:
 
 ```
-{
-	https://api.hiringroom.com/v0/oauth2/authorization?response_type=authcode&client_id=[CLIENT_ID]&account=[ACCOUNTNAME]&state=[STATE]
-}
+ https://api.hiringroom.com/v0/oauth2/authorization?response_type=authcode&client_id=[CLIENT_ID]&account=[ACCOUNTNAME]&state=[STATE]
 ```
    - **CLIENT_ID**: client_id que se provee.
    - **ACCOUNTNAME**: Subdominio de la cuenta del cliente
@@ -678,5 +676,11 @@ El link de autorización , tiene la siguiente forma:
 Una vez que se genera la url para el cliente, el cliente (una vez tenga una sesión iniciada en HiringRoom o inicie una nueva en el proceso) verá esta pantalla para dar permiso al third-party:
 
 ![8](https://i.imgur.com/8x3GgvV.png)
+
+Cuando el cliente acepte, se enviará al **redirect_uri** provisto anteriormente el codigo de autorizacion
+
+```
+[redirect_uri]?authCode=[AUTH_CODE]&state=[STATE]
+```
 
 
