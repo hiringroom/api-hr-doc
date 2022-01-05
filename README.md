@@ -682,5 +682,11 @@ Cuando el cliente acepte, se enviará al **redirect_uri** provisto anteriormente
 ```
 [redirect_uri]?authCode=[AUTH_CODE]&state=[STATE]
 ```
+El codigo de autorización sólo dura unos segundos, así que si no se pide el **AccessToken** correspondiente lo antes posible, el codigo de autorización quedará inválido. 
 
+Para obtener el **AccessToken**, se utiliza el endpoint
+
+```
+ POST /oauth2/token
+```
 
