@@ -648,6 +648,6 @@ La estructura que devuelve el API-HR para el code 422 es el siguiente:
   ]
 }
 ```
-#Integracion third-party
+# Integracion third-party
 
 
