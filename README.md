@@ -8,6 +8,7 @@
 - [Publicar una vacante y obtener postulantes](#publicar-una-vacante-y-obtener-postulantes)
 - [Manejo de errores](#manejo-de-errores)
 - [Integración third-party](#integración-third-party)
+- [Creando una evaluación](#creando-una-evaluación)
 
 # Introducción
 
@@ -141,6 +142,7 @@ Desplegamos el apartado **vacantes**, el endpoint a usar es **PUT /vacancies**
 
 ### Campos que consultan otros endpoints
 
+* idPipeline
 * ubicacionId
 * logoId
 * area/cliente 
@@ -689,4 +691,66 @@ Para obtener el **AccessToken**, se utiliza el endpoint
 ```
  POST /oauth2/token
 ```
+
+# Creando evaluaciones
+
+Para crear una evaluación, el primer paso es realizar una configuración en la cual se indica en qué vacante se desea obtener las evaluaciones correspondientes y también en qué etapa de la misma.
+
+El endpoint que deberemos utilizar es: 
+
+```
+ PUT /assessment/config
+```
+
+indicando lo siguiente (se omiten campos opcionales): 
+
+```
+ {
+  "vacancy_id": ID_VACANTE,
+  "stage": ID_ETAPA,
+  "internal_id": INTERNAL_ID,
+  "url_webhook": URL_WEBHOOK
+}
+```
+
+   - **ID_VACANTE**: Identificador de la vacante de HR. Lo podemos obtener del endpoint **GET /vacancies**
+   - **ID_ETAPA**: Etapa de la vacante en la que se quiere configurar el test. Lo podemos obtener del endpoint **GET /pipeline/{pipelineId})**
+   - **INTERNAL_ID**: Identificador interno de la evaluacion del thirdparty.
+   - **URL_WEBHOOK**: Url del thirdparty donde enviamos los datos cuando se pida una evaluación para un postulante
+
+Una vez creada la configuración, obtendremos un JSON similar a este:
+
+```
+{
+  "data": [
+    {
+      "config_id": "string",
+      "vacancy_id": "string",
+      "stage": 0,
+      "internal_id": "string",
+      "url_webhook": "string",
+      "url_internal": "string",
+      "extra_args": [
+        {}
+      ],
+      "created": 0
+    }
+  ]
+}
+```
+
+Hecho esto, ya tendremos creada una configuración en la vacante indicada. 
+
+Una vez que un postulante sea enviado a la etapa configurada (Por ejemplo etapa ENTREVISTA), se creará una evaluación pendiente para este postulante y se enviará al **url_webhook** configurado el pedido de test para ese postulante. 
+
+![9](https://i.imgur.com/KroJiDS.png)
+
+El JSON que se envía al webhook es el siguiente:
+
+```
+{
+   
+}
+```
+
 
