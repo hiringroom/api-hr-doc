@@ -8,7 +8,7 @@
 - [Publicar una vacante y obtener postulantes](#publicar-una-vacante-y-obtener-postulantes)
 - [Manejo de errores](#manejo-de-errores)
 - [Integración third-party](#integración-third-party)
-- [Creando una evaluación](#creando-una-evaluación)
+- [Creando evaluaciones](#creando-evaluaciones)
 
 # Introducción
 
@@ -749,8 +749,58 @@ El JSON que se envía al webhook es el siguiente:
 
 ```
 {
-   
+   "postulante": {
+     "id" : "string",
+     "nombre": "string",
+     "apellido": "string",
+     "genero": "M" | "F" | "O",
+     "email": "string",
+   },
+   "webhook" : {
+     "config_id" : "string",
+     "assessment_id" : "string",
+     "internal_id" : "string",
+     "vacante_id" : "string",
+     "extra_args" : []
+   }
 }
 ```
+   - **config_id**: Identificador de la configuración creada.
+   - **assessment_id**: Identificador del test creado en estado pendiente.
+   - **internal_id**: Identificador interno de la evaluacion del thirdparty.
+   - **vacante_id**: Identificador de la vacante configurada para el test.
+   - **extra_args**: Argumentos extras que cargó el third-party en la configuración.
+
+### Crear la evaluación 
+
+Para enviar el resultado de la evaluación a HiringRoom, deberemos utilizar el endpoint **POST /assessment/{assessment_id}**. El mismo debe tener la siguiente estructura:
+
+```
+{
+  "nombre_test": "string",
+  "resultado_general": "aprobado",
+  "nota_general": 10,
+  "detalle_general": [
+    {
+      "title": "Competencias y Liderazgo",
+      "details": [
+        {
+          "title": "string",
+          "value": "string",
+          "type": "STRING"
+        }
+      ]
+    }
+  ],
+  "descripcion": "string",
+  "url_reporte": "string"
+}
+```
+
+Cabe aclarar que se pueden enviar múltiples evaluaciones mediante el endpoint anterior. Las mismas se mostrarán en el perfil del postulante de la siguiente manera:
+
+![10](https://i.imgur.com/fX4rB78.png)
+
+
 
 
