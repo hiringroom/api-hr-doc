@@ -1,7 +1,9 @@
 # Contenido
 
 - [Integración third-party](#integración-third-party)
-- [Creando evaluaciones](#creando-evaluaciones)
+- [Autorización](#autorización)
+- [Configurando evaluaciones](#configurando-evaluaciones)
+- [Creando evaluciones](#creando-evaluaciones)
 
 
 # Integración third-party
@@ -16,7 +18,7 @@ El API HR está preparado para integrarse con aplicaciones de terceros (third-pa
 
 El protocolo de autenticación que usa el API HR para integraciones es el protocolo OAuth2. 
 
-### Obteniendo el token de autorización 
+# Autorización 
 
 Para que la aplicación third-party obtenga el **AccessToken** correspondiente para realizar acciones con la cuenta del cliente, primeramente debe pasar por un proceso de autorización en donde el cliente autoriza al third-party para que pueda hacer uso de los datos requeridos, una vez obtenido el codigo de autorización, se puede obtener el **AccessToken**.
 
@@ -46,7 +48,15 @@ Para obtener el **AccessToken**, se utiliza el endpoint
  POST /oauth2/token
 ```
 
-# Creando evaluaciones
+# Configurando evaluaciones
+
+Para crear una evaluación se requiere una configuración que vincule el assessment del third-party con una vacante de HiringRoom. 
+Para ello existen 2 maneras: 
+
+- Desde el API HR (próximo a deprecar)
+- Desde la creación de vacante
+
+### Creando evalución desde el API HR (próximo a deprecar)
 
 Para crear una evaluación, el primer paso es realizar una configuración en la cual se indica en qué vacante se desea obtener las evaluaciones correspondientes y también en qué etapa de la misma.
 
@@ -95,6 +105,69 @@ Una vez creada la configuración, obtendremos un JSON similar a este:
 
 Hecho esto, ya tendremos creada una configuración en la vacante indicada. 
 
+### Creando evalución desde HiringRoom
+
+El primer paso para que las evaluaciones se puedan configurar desde la creación de vacantes dentro de HiringRoom es crear una batería de tests dentro de HiringRoom para que el usuario pueda elegir el test disponible. 
+
+La batería de tests debería reflejar los test disponibles dentro del third-party, por lo que es recomendable que cada vez que se cree un test se lo envie como bateria a HirinRoom para que el usuario siempre lo tenga disponible. 
+
+El endpoint correspondiente para crear una batería es
+
+```
+ PUT /assessment/battery
+```
+
+indicando lo siguiente (se omiten campos opcionales): 
+
+```
+ {
+  "test_id": ID_TEST,
+  "test_name": TEST_NAME,
+  "vacancy_id": ID_VACANTE,
+  "stage": ID_ETAPA,
+  "internal_id": INTERNAL_ID,
+  "url_webhook": URL_WEBHOOK,
+  "url_webhook_vacancy": URL_WEBHOOK_VACANCY
+}
+```
+   - **ID_TEST**: Identificador del test del third-party.
+   - **TEST_NAME**: Nombre del test del third-party.
+   - **ID_VACANTE**: Identificador de la vacante de HR. Lo podemos obtener del endpoint **GET /vacancies**
+   - **ID_ETAPA**: Etapa de la vacante en la que se quiere configurar el test. Lo podemos obtener del endpoint **GET /pipeline/{pipelineId})**
+   - **INTERNAL_ID**: Identificador interno de la evaluacion del thirdparty.
+   - **URL_WEBHOOK**: Url del thirdparty donde enviamos los datos cuando se pida una evaluación para un postulante
+   - **URL_WEBHOOK_VACANCY**: Url del thirdparty donde enviamos los datos cuando se cree una configuración desde la creación de vacante dentro de HiringRoom
+
+Una vez creada la batería, obtendremos un JSON similar a este:
+
+```
+{
+  "data": [
+    {
+      "id": "string",
+      "test_id": "string",
+      "test_name": "string",
+      "internal_id": "string",
+      "url_webhook": "string",
+      "url_webhook_vacancy": "string",
+      "url_internal": "string",
+      "extra_args": [
+        {}
+      ],
+      "created": 0
+    }
+  ]
+}
+```
+
+Cuando tengamos baterías de tests del third-party las mismas aparecerán en el formulario de creación de vacante una vez seleccionado el pipeline correspondiente y en donde necesitaremos seleccionar el test y la etapa donde se configurará.
+
+![11](https://i.imgur.com/spvhjQq.png)
+
+Hecho esto, ya tendremos creada una configuración en la vacante indicada. 
+
+# Creando evaluciones 
+
 Una vez que un postulante sea enviado a la etapa configurada (Por ejemplo etapa ENTREVISTA), se creará una evaluación pendiente para este postulante y se enviará al **url_webhook** configurado el pedido de test para ese postulante. 
 
 ![9](https://i.imgur.com/KroJiDS.png)
@@ -124,8 +197,6 @@ El JSON que se envía al webhook es el siguiente:
    - **internal_id**: Identificador interno de la evaluacion del thirdparty.
    - **vacante_id**: Identificador de la vacante configurada para el test.
    - **extra_args**: Argumentos extras que cargó el third-party en la configuración.
-
-### Crear la evaluación 
 
 Para enviar el resultado de la evaluación a HiringRoom, deberemos utilizar el endpoint **POST /assessment/{assessment_id}**. El mismo debe tener la siguiente estructura:
 
