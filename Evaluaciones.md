@@ -3,7 +3,7 @@
 - [Integración third-party](#integración-third-party)
 - [Autorización](#autorización)
 - [Configurando evaluaciones](#configurando-evaluaciones)
-- [Creando evaluciones](#creando-evaluaciones)
+- [Creando evaluaciones](#creando-evaluaciones)
 
 
 # Integración third-party
@@ -166,7 +166,23 @@ Cuando tengamos baterías de tests del third-party las mismas aparecerán en el 
 
 Hecho esto, ya tendremos creada una configuración en la vacante indicada. 
 
-# Creando evaluciones 
+Cuando la vacante se haya creado, se enviará al **url_webhook_vacancy** configurado el siguiente JSON: 
+
+```
+{
+    "config_id" : "string",
+    "test_id": "string",
+    "action" : "string"
+}
+```
+
+Donde **action** puede ser: 
+- created : Se ha creado una configuración
+- edited : Se ha modificado una configuración
+- unlinked : Se ha desvinculado una configuración de la vacante
+
+
+# Creando evaluaciones 
 
 Una vez que un postulante sea enviado a la etapa configurada (Por ejemplo etapa ENTREVISTA), se creará una evaluación pendiente para este postulante y se enviará al **url_webhook** configurado el pedido de test para ese postulante. 
 
