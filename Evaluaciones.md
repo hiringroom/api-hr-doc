@@ -1,12 +1,12 @@
 # Contenido
 
-- [Integración third-party](#integración-third-party)
+- [Integración third-party Evaluaciones](#integración-third-party-evaluaciones)
 - [Autorización](#autorización)
 - [Configurando evaluaciones](#configurando-evaluaciones)
 - [Creando evaluaciones](#creando-evaluaciones)
 
 
-# Integración third-party
+# Integración third-party Evaluaciones
 
 El API HR está preparado para integrarse con aplicaciones de terceros (third-party). Para ello, debe pedir al asesor comercial, de soporte o tecnología que le facilite los accesos necesarios para poder realizar la integración. Estos accesos son el **client_id** y el **client_secret**. A su vez, debe proveerle a dicho asesor la siguiente información para poder obtener los accesos correspondientes:
 
