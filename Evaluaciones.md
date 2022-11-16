@@ -172,7 +172,8 @@ Cuando la vacante se haya creado, se enviará al **url_webhook_vacancy** configu
 {
     "config_id" : "string",
     "test_id": "string",
-    "action" : "string"
+    "action" : "string",
+    "account" : "string"
 }
 ```
 
@@ -205,7 +206,8 @@ El JSON que se envía al webhook es el siguiente:
      "internal_id" : "string",
      "vacante_id" : "string",
      "extra_args" : []
-   }
+   },
+   "account" : "string"
 }
 ```
    - **config_id**: Identificador de la configuración creada.
