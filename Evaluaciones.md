@@ -51,9 +51,8 @@ Para obtener el **AccessToken**, se utiliza el endpoint
 # Configurando evaluaciones
 
 Para crear una evaluación se requiere una configuración que vincule el assessment del third-party con una vacante de HiringRoom. 
-Para ello existen 2 maneras: 
+Para ello existen la siguiente manera: 
 
-- Desde el API HR (próximo a deprecar)
 - Desde la creación de vacante
 
 ### Creando evalución desde HiringRoom
