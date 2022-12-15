@@ -56,55 +56,6 @@ Para ello existen 2 maneras:
 - Desde el API HR (próximo a deprecar)
 - Desde la creación de vacante
 
-### Creando evalución desde el API HR (próximo a deprecar)
-
-Para crear una evaluación, el primer paso es realizar una configuración en la cual se indica en qué vacante se desea obtener las evaluaciones correspondientes y también en qué etapa de la misma.
-
-El endpoint que deberemos utilizar es: 
-
-```
- PUT /assessment/config
-```
-
-indicando lo siguiente (se omiten campos opcionales): 
-
-```
- {
-  "vacancy_id": ID_VACANTE,
-  "stage": ID_ETAPA,
-  "internal_id": INTERNAL_ID,
-  "url_webhook": URL_WEBHOOK
-}
-```
-
-   - **ID_VACANTE**: Identificador de la vacante de HR. Lo podemos obtener del endpoint **GET /vacancies**
-   - **ID_ETAPA**: Etapa de la vacante en la que se quiere configurar el test. Lo podemos obtener del endpoint **GET /pipeline/{pipelineId})**
-   - **INTERNAL_ID**: Identificador interno de la evaluacion del thirdparty.
-   - **URL_WEBHOOK**: Url del thirdparty donde enviamos los datos cuando se pida una evaluación para un postulante
-
-Una vez creada la configuración, obtendremos un JSON similar a este:
-
-```
-{
-  "data": [
-    {
-      "config_id": "string",
-      "vacancy_id": "string",
-      "stage": 0,
-      "internal_id": "string",
-      "url_webhook": "string",
-      "url_internal": "string",
-      "extra_args": [
-        {}
-      ],
-      "created": 0
-    }
-  ]
-}
-```
-
-Hecho esto, ya tendremos creada una configuración en la vacante indicada. 
-
 ### Creando evalución desde HiringRoom
 
 El primer paso para que las evaluaciones se puedan configurar desde la creación de vacantes dentro de HiringRoom es crear una batería de tests dentro de HiringRoom para que el usuario pueda elegir el test disponible. 
@@ -123,8 +74,6 @@ indicando lo siguiente (se omiten campos opcionales):
  {
   "test_id": ID_TEST,
   "test_name": TEST_NAME,
-  "vacancy_id": ID_VACANTE,
-  "stage": ID_ETAPA,
   "internal_id": INTERNAL_ID,
   "url_webhook": URL_WEBHOOK,
   "url_webhook_vacancy": URL_WEBHOOK_VACANCY
@@ -132,8 +81,6 @@ indicando lo siguiente (se omiten campos opcionales):
 ```
    - **ID_TEST**: Identificador del test del third-party.
    - **TEST_NAME**: Nombre del test del third-party.
-   - **ID_VACANTE**: Identificador de la vacante de HR. Lo podemos obtener del endpoint **GET /vacancies**
-   - **ID_ETAPA**: Etapa de la vacante en la que se quiere configurar el test. Lo podemos obtener del endpoint **GET /pipeline/{pipelineId})**
    - **INTERNAL_ID**: Identificador interno de la evaluacion del thirdparty.
    - **URL_WEBHOOK**: Url del thirdparty donde enviamos los datos cuando se pida una evaluación para un postulante
    - **URL_WEBHOOK_VACANCY**: Url del thirdparty donde enviamos los datos cuando se cree una configuración desde la creación de vacante dentro de HiringRoom
