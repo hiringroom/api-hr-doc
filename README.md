@@ -67,6 +67,14 @@ Para acceder a los recursos privados que provee el API de Hiringroom (a partir d
   "password": "[PASSWORD]"
 }
 ```
+
+Donde: 
+
+- **CLIENT_ID**: es el client_id previamente obtenido.
+- **CLIENT_SECRET**: es el client_secret previamente obtenido.
+- **EMAIL**: es el email del usuario de HiringRoom que quiere conectar con el API.
+- **PASSWORD**: es el password del usuario de HiringRoom que quiere conectar con el API.
+
 ![4](https://i.imgur.com/t4AFkeL.png)
 
 3. Y haciendo click en el botón **Try it out!** y obtendremos el resultado del request
