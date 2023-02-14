@@ -4,6 +4,7 @@
 - [Autorización](#autorización)
 - [Configurando evaluaciones](#configurando-evaluaciones)
 - [Creando evaluaciones](#creando-evaluaciones)
+- [Eliminando evaluaciones](#eliminando-evaluaciones)
 
 
 # Integración third-party Evaluaciones
@@ -189,6 +190,27 @@ Para enviar el resultado de la evaluación a HiringRoom, deberemos utilizar el e
 Cabe aclarar que se pueden enviar múltiples evaluaciones mediante el endpoint anterior. Las mismas se mostrarán en el perfil del postulante de la siguiente manera:
 
 ![10](https://i.imgur.com/fX4rB78.png)
+
+# Eliminando evaluaciones 
+El endpoint correspondiente para eliminar una batería es
+
+```
+ DELETE /assessment/battery/{battery_id}
+```
+indicando lo siguiente : 
+
+```
+ {
+  "description": DESCRIPTION,
+ }
+```
+- **DESCRIPTION**: motivo por el cual se esta eliminando el test, este motivo se mostrara a los usuarios de la cuenta.
+
+Cuando se elimine un test de la batería del third-party las misma ya no aparecerán en el formulario de creación de vacante. En el caso de que la vacante tenga una configuración previamente con un test eliminado, el mismo pasara al estado  "No activo" dando la posibilidad al usuario de poder realizar una nueva configuración.
+
+Para los postulantes de esta vacante que tengan las evaluaciones enviadas en los siguientes estados:
+ - **En Progreso**: estas evaluaciones se eliminan y no se podrán visualizar.
+ - **Completado**: estas evaluaciones permanecerán y se podrán visualizar los resultados.
 
 
 
