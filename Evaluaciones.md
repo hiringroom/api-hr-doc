@@ -192,7 +192,8 @@ Cabe aclarar que se pueden enviar múltiples evaluaciones mediante el endpoint a
 ![10](https://i.imgur.com/fX4rB78.png)
 
 # Eliminando evaluaciones 
-El endpoint correspondiente para eliminar una batería es
+
+Si el third-party desea eliminar una batería de su sistema o base de datos, ya sea por pedido o interacción del usuario en la plataforma third-party, o por necesidad del third-party de hacerlo, se debe informar esto al API-HR mediante el siguiente endpoint: 
 
 ```
  DELETE /assessment/battery/{battery_id}
@@ -204,13 +205,14 @@ indicando lo siguiente :
   "description": DESCRIPTION,
  }
 ```
-- **DESCRIPTION**: motivo por el cual se esta eliminando el test, este motivo se mostrara a los usuarios de la cuenta.
+- **DESCRIPTION**: motivo por el cual se esta eliminando el test, este motivo se mostrará a los usuarios de la cuenta de HiringRoom.
 
-Cuando se elimine un test de la batería del third-party las misma ya no aparecerán en el formulario de creación de vacante. En el caso de que la vacante tenga una configuración previamente con un test eliminado, el mismo pasara al estado  "No activo" dando la posibilidad al usuario de poder realizar una nueva configuración.
+Cuando se elimine un test de la batería del third-party las misma ya no aparecerán en el formulario de creación de vacante. Además se desvincularán de forma automática todas las vacantes relacionadas a ese test de batería. En el caso de que la vacante tenga una configuración previamente con un test eliminado, el mismo pasara al estado  "No activo" dando la posibilidad al usuario de poder realizar una nueva configuración (siempre y cuando haya stock de tests del third-party disponibles en esa cuenta de Hiring Room).
 
-Para los postulantes de esta vacante que tengan las evaluaciones enviadas en los siguientes estados:
+Para los postulantes de la/s vacante/s que tengan las evaluaciones enviadas de algún test eliminado, que tengan los estados:
  - **En Progreso**: estas evaluaciones se eliminan y no se podrán visualizar.
- - **Completado**: estas evaluaciones permanecerán y se podrán visualizar los resultados.
+ - **Completado**: estas evaluaciones permanecerán y se podrán visualizar los resultados (si el third-party adjunta una url para visualizar el reporte correspondiente y esa url queda inaccesible, queda a discreción del third-party). 
+
 
 
 
