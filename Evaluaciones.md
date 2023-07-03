@@ -5,6 +5,7 @@
 - [Configurando evaluaciones](#configurando-evaluaciones)
 - [Creando evaluaciones](#creando-evaluaciones)
 - [Eliminando evaluaciones](#eliminando-evaluaciones)
+- [Cambio de dominio](#cambio-de-dominio)
 
 
 # Integración third-party Evaluaciones
@@ -211,7 +212,23 @@ Cuando se elimine un test de la batería del third-party las misma ya no aparece
 
 Para los postulantes de la/s vacante/s que tengan las evaluaciones enviadas de algún test eliminado, que tengan los estados:
  - **En Progreso**: estas evaluaciones se eliminan y no se podrán visualizar.
- - **Completado**: estas evaluaciones permanecerán y se podrán visualizar los resultados (si el third-party adjunta una url para visualizar el reporte correspondiente y esa url queda inaccesible, queda a discreción del third-party). 
+ - **Completado**: estas evaluaciones permanecerán y se podrán visualizar los resultados (si el third-party adjunta una url para visualizar el reporte correspondiente y esa url queda inaccesible, queda a discreción del third-party).
+
+
+# Cambio de dominio
+Dentro de la plataforma de Hiringroon, se realizan cambios de dominio. Este dominio se utiliza para la autorización en el endpoint **/oauth2/authorization**. Si en los procesos internos de su plataforma se guarda este campo, se debe proporcionar un endpoint para enviarles el nuevo dominio al que se ha cambiado la cuenta. Los parámetros necesarios para este endpoint son los siguientes:
+
+```
+curl -X 'PATCH' 
+  '{UrlEndpoint}?oldAccountName=oldaccount&newAccountName=newAccount' 
+  -H 'Authorization: Bearer {accessToken}'
+```
+  - **UrlEndpoint**: url del endpoint.
+   - **oldAccountName**: dominio actual.
+   - **newAccountName**: dominio nuevo .
+   - **Authorization**: Si el endpoint requiere de autorización,debe proporcionar dicho endpoint junto con las credenciales necesarias para obtenerla. Sin embargo, es importante destacar que esta acción es opcional.
+
+
 
 
 
