@@ -1,151 +1,158 @@
-# Contenido
+# Hiring Room API
+## Contenido
 
 - [Introducción](#introducción)
-- [Client ID y Client secret](#client-id-y-client-secret)
+  - [Habilitar credenciales](#habilitar-credenciales)
 - [Interfaz swagger](#interfaz-swagger)
 - [Inicio de Sesión](#inicio-de-sesión)
 - [Creación de una vacante](#creación-de-una-vacante)
 - [Publicar una vacante y obtener postulantes](#publicar-una-vacante-y-obtener-postulantes)
 - [Manejo de errores](#manejo-de-errores)
 
-# Introducción
+## Introducción
 
-Para empezar,aparte de sus credenciales para acceder a HiringRoom (username y password) el cliente debe obtener sus credenciales para el API, su **client_id** y su **client_secret** que puede obtenerlos desde HiringRoom.
-El username y password se utilizan para poder conectar a ese usuario particular con el API, y todas las acciones llevadas a cabo en el API con el usuario conectado se harán en el nombre de ese usuario. Se recomienda que el usuario conectado siempre sea de tipo **administrador** ya que otros tipos de usuarios pueden llegar a tener restricciones en los endpoints. 
+Para comenzar, además de las credenciales habituales para acceder a HiringRoom (nombre de usuario y contraseña),
+el cliente debe obtener las credenciales necesarias para interactuar con la API: **client_id** y **client_secret**.
+Estas credenciales pueden generarse y visualizarse directamente desde la plataforma HiringRoom.
 
-El **API-HR** posee una interfaz swagger para poder ver y probar los endpoints disponibles , la misma se encuentra en https://api.hiringroom.com/
+El nombre de usuario (username) y la contraseña (password) se utilizan para autenticar a un usuario específico al
+conectarse por medio de nuestra API. Todas las acciones realizadas a través de la API en nombre de este usuario estarán
+asociadas a su cuenta. Se recomienda que este usuario tenga privilegios de administrador, ya que los usuarios con
+permisos más limitados podrían no tener acceso a ciertos endpoints.
 
-### Client ID y Client secret
+La **API de HiringRoom** (API-HR) cuenta con una interfaz Swagger, la cual permite visualizar y probar los distintos
+endpoints disponibles. Esta interfaz se encuentra en: https://api.hiringroom.com/.
 
-El **client_id** y el **client_secret** son datos fundamentales a la hora de usar el API de Hiringroom (a partir de ahora API-HR). Si ellos no es posible crear el **access_token** requerido para usar el API-HR. 
-Para poder obtenerlos, debe iniciar sesión con su cuenta de HiringRoom y nos dirigimos a **Configuracion->Preferencias del sistema**
+### Habilitar credenciales
+El **client_id** y el **client_secret** son esenciales para interactuar con la API, ya que sin ellos no se puede generar
+el `access_token` requerido por los endpoints. 
 
-![6](https://i.imgur.com/YW3yMMD.png)
+Para obtener estas credenciales, sigue los siguientes pasos:
 
-Una vez dentro de las preferencias del sistema nos dirigimos a **Integración API HR** y hacemos click en **Solicitar credenciales**. Obtendremos un Json con las credenciales
+1. Inicia sesión en tu cuenta de HiringRoom con tu usuario administrador.
 
-![7](https://i.imgur.com/5KkYhUU.png)
+2. Navega a Configuración -> **API HR**.
+![6](./images/api-config-menu.png)
 
-```
-{
-	"client_id" : "[CLIENT_ID]"
-	"client_secret" : "[CLIENT_SECRET]"
-}
-```
+3. Una vez dentro de las preferencias del sistema nos dirigimos a **Integración API HR** y hacemos click en **Solicitar credenciales**. Obtendremos un Json con las credenciales
+![7](./images/api-config-get-key.png)
 
-Nota: Una vez obtenidas las credenciales deben ser almacenadas en algún lugar de confianza. Una vez fuera de esa vista, o si se refresca la pagina, las credenciales no serán visibles nuevamente, debiendo repetir el proceso para adquirirlas nuevamente. _**Se debe tener en cuenta que si se adquieren nuevas credenciales, las anteriores quedaran inutilizables**_. 
+4. Copiar y almacenar de forma segura estas credenciales.
+   ```json
+    {
+        "client_id" : "[CLIENT_ID]",
+        "client_secret" : "[CLIENT_SECRET]"
+    }
+   ```
+
+Nota: Una vez obtenidas las credenciales deben ser almacenadas en algún lugar de confianza. Una vez fuera de esa vista,
+o si se refresca la página, las credenciales no serán visibles nuevamente, debiendo repetir el proceso para adquirirlas
+nuevamente. **Se debe tener en cuenta que si se adquieren nuevas credenciales, las anteriores dejarán de ser válidas**. 
 
 
 # Interfaz swagger
 
-Una pequeña explicación de la interfaz para entender como funciona
-- Estructura basica
+Una pequeña explicación de la interfaz para entender como funciona:
 
+- Estructura básica
 ![1](https://i.imgur.com/wdbatUn.png)
+
 - Ejemplo modelo de response code 200
-
 ![2](https://i.imgur.com/lPT0RvB.png)
-- Ejemplo de response de algun endpoint
 
+- Ejemplo de response de algun endpoint
 ![3](https://i.imgur.com/AvX1MxV.png)
 
-# Inicio de Sesión
+## Inicio de Sesión
 
-Para acceder a los recursos privados que provee el API de Hiringroom (a partir de ahora API-HR) es necesario autenticarse iniciando sesión en la misma. El API-HR soporta dos tipos de sesión: a nivel de usuario y a nivel aplicación de terceros.
-
-### Inicio de sesión como usuario
-
-1. Desplegamos el apartado **autenticacion-usuarios**, el endpoint a usar es **POST /authenticate/login/users**
-
-2. Se completa el body con la información requerida: 
-
-```
-{
-  "grand_type": "password",
-  "client_id": "[CLIENT_ID]",
-  "client_secret": "[CLIENT_SECRET]",
-  "username": "[EMAIL]",
-  "password": "[PASSWORD]"
-}
-```
-
-Donde: 
-
-- **CLIENT_ID**: es el client_id previamente obtenido.
-- **CLIENT_SECRET**: es el client_secret previamente obtenido.
-- **EMAIL**: es el email del usuario de HiringRoom que quiere conectar con el API.
-- **PASSWORD**: es el password del usuario de HiringRoom que quiere conectar con el API.
-
-![4](https://i.imgur.com/t4AFkeL.png)
-
-3. Y haciendo click en el botón **Try it out!** y obtendremos el resultado del request
-
-4. Obtendremos un json con este formato: 
-
-```
+1. Desplegar el apartado **autenticacion-usuarios**. El endpoint a usar es **POST /authenticate/login/users**
+2. Completar el body con la información requerida:
+    ```json
     {
-     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IktaXNlbnRyZXZpc3RhcyIsInNjcCI6WyJ1c2VyczpyZWFkIiwicG9zdHVsYW50czpyZWFkIiwicG9zdHVsYW50czp3cml0ZSIsInZhY2FuY2llczpyZWFkIiwidmFjYW5Njb3VudF9sb2NhbGl0aWVzOnJlYWQiLCJhY2NvdW50X2xvZ29zOnJlYWQiLCJhY2NvdW50X3N0YWdlczpyZWFkIiwiY29tdW5lczpyZWFkIiwiYWNjb3V",
-     "expiresIn": 86370,
-     "tokenType": "bearer",
-     "refreshToken": "zAKGpl0ETvrMZyy57C0Ty2Qn3iaQiG4WoSq8W8lkJpj34Et45BIbQzbwWIgRkvXF0jpcQGyrfYRSjavcw0XC81EBLP2zy79qSdHBKAiLtT8HtF4ucSl85nN2Cn7HoHd9RSqCEG0TFTKd85ZMxU1GftwDJzewNsccGciSXDINOI9Mx5W5Lf6zZmNAffKRGqYbo939Xi1pC"
+      "grand_type": "password",
+      "client_id": "[CLIENT_ID]",
+      "client_secret": "[CLIENT_SECRET]",
+      "username": "[EMAIL]",
+      "password": "[PASSWORD]"
     }
-```
-   - **token**: es el access_token (Token de Acceso) necesario para poder hacer las consultas en el API.
+   ```
+   Donde:
+   - **CLIENT_ID**: es el client_id previamente obtenido.
+   - **CLIENT_SECRET**: es el client_secret previamente obtenido.
+   - **EMAIL**: es el email del usuario de HiringRoom que quiere conectar vía API.
+   - **PASSWORD**: es el password del usuario de HiringRoom que quiere conectar vía API.
+   ![4](https://i.imgur.com/t4AFkeL.png)
+3. Hacer click en el botón **Try it out!**.
+4. La respuesta será un json con el siguiente:
+    ```json
+        {
+         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IktaXNlbnRyZXZpc3RhcyIsInNjcCI6WyJ1c2VyczpyZWFkIiwicG9zdHVsYW50czpyZWFkIiwicG9zdHVsYW50czp3cml0ZSIsInZhY2FuY2llczpyZWFkIiwidmFjYW5Njb3VudF9sb2NhbGl0aWVzOnJlYWQiLCJhY2NvdW50X2xvZ29zOnJlYWQiLCJhY2NvdW50X3N0YWdlczpyZWFkIiwiY29tdW5lczpyZWFkIiwiYWNjb3V",
+         "expiresIn": 86370,
+         "tokenType": "bearer",
+         "refreshToken": "zAKGpl0ETvrMZyy57C0Ty2Qn3iaQiG4WoSq8W8lkJpj34Et45BIbQzbwWIgRkvXF0jpcQGyrfYRSjavcw0XC81EBLP2zy79qSdHBKAiLtT8HtF4ucSl85nN2Cn7HoHd9RSqCEG0TFTKd85ZMxU1GftwDJzewNsccGciSXDINOI9Mx5W5Lf6zZmNAffKRGqYbo939Xi1pC"
+        }
+    ```
+   Donde:
+   - **token**: es el _**access_token**_ (Token de Acceso) necesario para poder hacer las consultas a la API.
    - **expiresIn**: fecha de expiracion del token expresada en segundos
    - **tokenType**: tipo de token
    - **refreshToken**: token de refresco
 
-5. Una vez obtenido el token podemos setearlo en el input superior del swagger y haciendo click en el botón **Set Token**: 
-
+5. El token obtenido se puede setear de forma global en la interfaz Swagger. Para esto se debe copiar el token en el
+input superior y hacer click en el botón **Set Token**:
 ![5](https://i.imgur.com/vPnVHRs.png)
 
 ### Uso de refresh token
 
-Para la seguridad de los usuarios creamos este endpoint para que puedan obtener un nuevo access_token una vez vencido el actual. De esta forma, el usuario no necesita ingresar siempre al endpoint de login con sus accesos (user, password, client_id, client_secret) para obtener un nuevo access_token sino que, ingresando al endpoint de refresh_token puede obtenerlos de una manera mas facil y segura. Solo es necesario el **refresh_token** obtenido en el login y el **client_id**.
+Con el fin de mejorar la seguridad de los usuarios, se ha creado un endpoint que permite obtener un nuevo **_access_token_**
+cuando el actual ha expirado. De esta manera, el usuario no necesita autenticarse simpre con sus credenciales completas
+(usuario, contraseña, client_id, client_secret).
 
-El Refresh token tiene una duracion de 6 meses, y puede ser usado una sola vez, luego de eso, se obtiene un nuevo refresh_token
+Para generar entonces un nuevo **_access_token_** se puede hacer uso del endpoint `POST /authenticate/login/refresh_token`,
+proporcionando el refresh_token (obtenido durante el login) y el **_client_id_**.
 
 Uso del refresh token: 
 
-1. Desplegamos el apartado **autenticacion-usuarios**, el endpoint a usar es **POST /authenticate/login/refresh_token**
+1. En Swagger, desplegar el apartado **autenticacion-usuarios** y seleccionar el endpoint
+**POST /authenticate/login/refresh_token**
 
-2. El body lo completamos con la informacion requerida: 
-
-```
-{
-  "grand_type": "refresh_token",
-  "client_id": "string",
-  "refresh_token": "string"
-}
-```
-- **grand_type** : en este endpoint siempre es **refresh_token**
-- **client_id** : el **client_id** que solicita el token
-- **refresh_token** : el **refresh_token** obtenido en el login. 
-
-3. Nuevamente, obtendremos un Json como el que obtenemos al hacer un login, con un nuevo access_token y un nuevo refresh_token
-
-```
+2. Completar el body con la información requerida: 
+    ```json
     {
-     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IktaXNlbnRyZXZpc3RhcyIsInNjcCI6WyJ1c2VyczpyZWFkIiwicG9zdHVsYW50czpyZWFkIiwicG9zdHVsYW50czp3cml0ZSIsInZhY2FuY2llczpyZWFkIiwidmFjYW5Njb3VudF9sb2NhbGl0aWVzOnJlYWQiLCJhY2NvdW50X2xvZ29zOnJlYWQiLCJhY2NvdW50X3N0YWdlczpyZWFkIiwiY29tdW5lczpyZWFkIiwiYWNjb3V",
-     "expiresIn": 86370,
-     "tokenType": "bearer",
-     "refreshToken": "zAKGpl0ETvrMZyy57C0Ty2Qn3iaQiG4WoSq8W8lkJpj34Et45BIbQzbwWIgRkvXF0jpcQGyrfYRSjavcw0XC81EBLP2zy79qSdHBKAiLtT8HtF4ucSl85nN2Cn7HoHd9RSqCEG0TFTKd85ZMxU1GftwDJzewNsccGciSXDINOI9Mx5W5Lf6zZmNAffKRGqYbo939Xi1pC"
+      "grand_type": "refresh_token",
+      "client_id": "string",
+      "refresh_token": "string"
     }
-```
+    ```
+   - **grand_type** : en este endpoint siempre es `refresh_token`
+   - **client_id** : el `client_id` que solicita el token
+   - **refresh_token** : el `refresh_token` obtenido en el login. 
 
-# Creación de una vacante
+3. Al realizar la llamada (_Try it out!_) se obtendrá un JSON como el que se obtiene al hacer un login, con un nuevo
+`access_token` y un nuevo `refresh_token`. Por ejemplo:
+    ```json
+    {
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IktaXNlbnRyZXZpc3RhcyIsInNjcCI6WyJ1c2VyczpyZWFkIiwicG9zdHVsYW50czpyZWFkIiwicG9zdHVsYW50czp3cml0ZSIsInZhY2FuY2llczpyZWFkIiwidmFjYW5Njb3VudF9sb2NhbGl0aWVzOnJlYWQiLCJhY2NvdW50X2xvZ29zOnJlYWQiLCJhY2NvdW50X3N0YWdlczpyZWFkIiwiY29tdW5lczpyZWFkIiwiYWNjb3V",
+      "expiresIn": 86370,
+      "tokenType": "bearer",
+      "refreshToken": "zAKGpl0ETvrMZyy57C0Ty2Qn3iaQiG4WoSq8W8lkJpj34Et45BIbQzbwWIgRkvXF0jpcQGyrfYRSjavcw0XC81EBLP2zy79qSdHBKAiLtT8HtF4ucSl85nN2Cn7HoHd9RSqCEG0TFTKd85ZMxU1GftwDJzewNsccGciSXDINOI9Mx5W5Lf6zZmNAffKRGqYbo939Xi1pC"
+    }
+    ```
+
+## Creación de una vacante
 
 Aquí se ejemplifica la creación de una vacante, explicando los pasos involucrados necesarios.
 
 ### Introducción
 
-Desplegamos el apartado **vacantes**, el endpoint a usar es **PUT /vacancies**
+Desplegar el apartado **Vacantes**, el endpoint a usar es **PUT /vacancies**.
 
- Antes de poder completar el json para crear la vacante debemos tener algunas cosas en cuenta: 
-
-- En el modelo del json de vacante tenemos todos los campos obligatorios de la misma
-- Hay campos que requieren consultar otros endpoints para poder completarlos (por ejemplo **ubicacionId**). En el modelo estan especificados los endpoints necesarios para cada campo.
-- HiringRoom maneja 2 tipos de cuentas: **consultoras** y **empresas**, y es necesario que el usuario del API-HR tenga en cuenta esto a la hora de agregar ciertos parámetros (como área o cliente)
+Para poder completar el JSON para crear una vacante se debe tener en cuenta lo siguiente:
+- Los campos obligatorios para crear una vacante se especifican en el modelo documentado en Swagger.
+- Hay campos que requieren consultar otros endpoints para poder completarlos (por ejemplo `ubicacionId`).
+En el modelo también están especificados los endpoints necesarios para cada campo.
+- HiringRoom maneja 2 tipos de cuentas: **consultoras** y **empresas**, y es necesario que el usuario del API-HR tenga
+en cuenta esto a la hora de agregar ciertos parámetros (como área o cliente).
 
 ### Campos que consultan otros endpoints
 
@@ -162,44 +169,54 @@ Desplegamos el apartado **vacantes**, el endpoint a usar es **PUT /vacancies**
 * tipoEmpleo 
 * razonBusqueda 
 
-Nota: Puede que haya campos específicos para cada tipo de cuenta (al hacer el request obtendrá un error de validación indicándolo), por ejemplo area/subarea son parámetros para cuentas tipo **empresa** mientras que cliente/subcliente son para cuentas tipo **consultora**.
+Nota: existen campos específicos para cada tipo de cuenta (al hacer el request obtendrá un error de validación
+indicándolo), por ejemplo área/subarea son parámetros para cuentas tipo **empresa** mientras que cliente/subcliente son
+para cuentas tipo **consultora**.
 
 ### Consultando otros endpoints
 
-Para completar ,por ejemplo, el campo requerido **ubicacionId** es necesario consultar el endpoint **GET /account/localities**
-El único campo que nos pide este endpoint es el access_token obtenido en el [login](#inicio-de-sesión). Ejecutamos el request y obtendremos un Json con el siguiente formato: 
+Para completar, por ejemplo, el campo requerido `ubicacionId` es necesario consultar el endpoint **GET /account/localities**
+Este endpoint, como los demás, requiere el `access_token` obtenido en el [login](#inicio-de-sesión).
+Al realizar el request, se obtendrá un JSON con la lista de ubicaciones: 
 
-```
+```json
 {
-  "localidades": {
-    "fechaCreacion": "12-05-2020",
-    "pais": "Argentina",
-    "provincia": "Jujuy",
-    "ciudad": "San Salvador de Jujuy",
-    "id": "5ebb0053f40cf01b74f1b274"
-  }
+  "localidades": [
+     {
+        "fechaCreacion": "12-05-2020",
+        "pais": "Argentina",
+        "provincia": "Jujuy",
+        "ciudad": "San Salvador de Jujuy",
+        "id": "5ebb0053f40cf01b74f1b274"
+     }
+  ]
 }
 ```
-En este caso, el campo que necesitamos para completar **ubicacionId** es **id**.
 
-Nota: Si no se obtienen localidades quiere decir que la cuenta no posee ninguna creada, puede crear una desde HiringRoom al crear/editar una vacante o desde el endpoint **PUT /account/localities**
+En este caso, el campo que necesitamos para completar `ubicacionId` es `id`.
+
+Nota: Si no se obtienen localidades quiere decir que la cuenta no posee ninguna creada, puede crear una desde la
+aplicación web o desde el endpoint **PUT /account/localities**
 
 ### Preguntas simples
 
 Las preguntas simples son aquellas que tienen una respuesta abierta por parte del postulante.  
-Para adjuntar una pregunta simple en el Json de vacante basta con añadirle el campo **preguntasSimples** que es un array de objetos: 
+Para adjuntar una pregunta simple en el payload de la vacante basta con añadirle el campo `preguntasSimples`, el cual es
+un array de objetos: 
 
-```
-"preguntasSimples": [
+```json
+{
+  "preguntasSimples": [
     {
       "pregunta": "string"
     }
   ]
+}
 ``` 
 
-Por lo que, el Json de ejemplo nos podría quedar de este modo, agregándole 2 preguntas simples: 
+Por ejemplo, agregándole 2 preguntas simples, podría quedar de este modo: 
 
-```
+```json
 {
  "preguntasSimples": [
     {
@@ -216,10 +233,11 @@ Por lo que, el Json de ejemplo nos podría quedar de este modo, agregándole 2 p
 
 Las preguntas múltiples son aquellas que tienen opciones predefinidas, se pueden marcar las respuestas incorrectas para que los postulantes puedan ser automáticamente rechazados al contestarlas.
 
-Para adjuntar una pregunta múltiple en el Json de vacante basta con añadirle el campo **preguntasMultiples** que es un array de objetos, pero con una estructura particular: 
+Para adjuntar una pregunta múltiple en el Json de vacante basta con añadirle el campo `preguntasMultiples` que es un array de objetos, pero con una estructura particular: 
 
-```
-"preguntasMultiples": [
+```json
+{
+  "preguntasMultiples": [
     {
       "pregunta": "string",
       "opciones": [
@@ -230,18 +248,19 @@ Para adjuntar una pregunta múltiple en el Json de vacante basta con añadirle e
       ]
     }
   ]
+}
 ``` 
 
-* **pregunta** es el texto de la pregunta
-* **opciones** array de opciones para esa pregunta, las opciones pueden descalificar o no un postulante (mínimo debe haber una opción que no descalifique, ademas no es obligatorio. El mínimo de opciones a agregar son 2). 
+* `pregunta` es el texto de la pregunta
+* `opciones` array de opciones para esa pregunta, las opciones pueden descalificar o no un postulante (mínimo debe haber una opción que no descalifique, además no es obligatorio. El mínimo de opciones a agregar son 2). 
 
-Por lo que, el Json de ejemplo nos podría quedar de este modo, agregándole 2 preguntas múltiples : 
+Por lo que, el payload de ejemplo nos podría quedar de este modo, agregándole 2 preguntas múltiples: 
 
-```
+```json
 {
   "preguntasMultiples": [
     {
-      "pregunta": "Sabe usar swagger?",
+      "pregunta": "¿Ha podido probar nuestra interfaz Swagger?",
       "opciones": [
         {
           "opcion": "Si",
@@ -254,7 +273,7 @@ Por lo que, el Json de ejemplo nos podría quedar de este modo, agregándole 2 p
       ]
     },
     {
-      "pregunta": "Entiende la documentacion sobre el API?",
+      "pregunta": "¿Le resultó de utilidad la documentación de nuestra API?",
       "opciones": [
         {
           "opcion": "Mucho",
@@ -278,7 +297,7 @@ Por lo que, el Json de ejemplo nos podría quedar de este modo, agregándole 2 p
 
 Una vez obtenidos todos los campos necesarios para crear una vacante, podemos tener un Json similar a este (se omitieron algunos campos que no son obligatorios) 
 
-```
+```json
 {
   "nombre": "Nueva vacante desde el API",
   "ubicacionId": "5ebb0053f40cf01b74f1b274",
@@ -336,9 +355,8 @@ Una vez obtenidos todos los campos necesarios para crear una vacante, podemos te
 }
 ```
 
-Haciendo el request de este Json podremos obtener (por ejemplo) un json con un error de validación (code 422)
-
-```
+Si se hace un request con datos incompleto se obtiene un error 422 por no pasar las validaciones, como el siguiente:
+```json
 {
   "message": "Validation Error",
   "errors": [
@@ -350,9 +368,9 @@ Haciendo el request de este Json podremos obtener (por ejemplo) un json con un e
 }
 ```
 
-O el request puede haberse hecho satisfactoriamente (code 201) obteniendo un Json similar a este: 
-
-```
+Si el request se envía con todos los datos necesarios para crear la vacante (HTTP Code 201) se obtiene un resultado
+exitoso como el siguiente:
+```json
 {
   "result": {
     "result": "success",
@@ -361,20 +379,20 @@ O el request puede haberse hecho satisfactoriamente (code 201) obteniendo un Jso
 }
 ```
 
-Nota: el id que obtenemos el es Id de la nueva vacante creada, que confirma que fue creada satisfactoriamente.
+Nota: el `id` que obtenemos es el identificador de la nueva vacante, que confirma que fue creada satisfactoriamente.
 
-Si se visita el dashoboard de la cuenta de HiringRoom se puede observar que efectivamente la vacante esta creada. 
+Si se visita el dashboard de la cuenta de HiringRoom se puede observar que efectivamente la vacante está creada. 
 
-# Publicar una vacante y obtener postulantes
+## Publicar una vacante y obtener postulantes
 
-Por el momento esta funcionalidad soporta publicación en los siguientes portales : 
+Por el momento esta funcionalidad soporta publicación en los siguientes portales: 
 
 * Portales de Bumeran (Bumeran, Konzerta, Laborum, Multitrabajos)
 
 Para poder hacer uso de esta funcionalidad usaremos el endpoint **PUT /vacancies/{idVacancy}/publish**
-Indicaremos cual es la vacante que queremos publicar y completaremos el body **publishRequest**: 
+Indicaremos cuál es la vacante que queremos publicar y completaremos el body **publishRequest**: 
 
-```
+```json
 {
   "portales": [
     {
@@ -389,10 +407,11 @@ Indicaremos cual es la vacante que queremos publicar y completaremos el body **p
 
 Para publicar en un portal de Bumeran debemos tener en cuenta lo siguiente: 
 
-* Si en **publishRequest** solo indicamos el **"portalId"** el aviso solo se guardara como borrador en el portal de Bumeran (tambien se relacionara este aviso a la vacante de Hiringroom indicada.
-* Si queremos que el aviso se publique debemos agregar 2 parametros junto con **"portalId"**: **planPublicacionId** y **paisPublicacionId** 
+* Si en **publishRequest** solo indicamos el **"portalId"** el aviso solo se guardará como borrador en el portal de
+Bumeran (también se relacionara este aviso a la vacante de HiringRoom indicada).
+* Si queremos que el aviso se publique debemos agregar 2 parámetros junto con **"portalId"**: **planPublicacionId** y **paisPublicacionId** 
 
-```
+```json
 {
   "portales": [
     {
@@ -403,9 +422,9 @@ Para publicar en un portal de Bumeran debemos tener en cuenta lo siguiente:
   ]
 }
 ```
-* **planPublicacionId** : Lo podemos obtener del endpoint **GET /account/integrations/{portalId}/planes_publicacion** , obteniendo los planes de publicacion disponibles. 
+* **planPublicacionId**: Lo podemos obtener del endpoint **GET /account/integrations/{portalId}/planes_publicacion**, obteniendo los planes de publicacion disponibles. 
 
-```
+```json
 {
   "planes": [
     {
@@ -429,11 +448,11 @@ Para publicar en un portal de Bumeran debemos tener en cuenta lo siguiente:
   ]
 }
 ```
-* **paisPublicacionId** : Lo podemos obtener del endpoint **GET /common/countries**
+* **paisPublicacionId**: Lo podemos obtener del endpoint **GET /common/countries**
 
 Entonces, si quisiéramos publicar un Aviso Tecnología en Bumeran para el país Argentina, el **publishRequest** nos quedaría así: 
 
-```
+```json
 {
   "portales": [
     {
@@ -447,13 +466,12 @@ Entonces, si quisiéramos publicar un Aviso Tecnología en Bumeran para el país
 
 **IMPORTANTE** : 
 * Para completar el campo **planPublicacionId** debemos incluir el **"id"** obtenido del endpoint correspondiente. 
-* Si el **"planPublicacionId"** no se correspondiese con el **"paisPublicacionId"** (en otras palabras, que para ese país no hay stock de ese plan de publicación), el aviso se guardara como borrador.
+* Si el **"planPublicacionId"** no se correspondiese con el **"paisPublicacionId"** (en otras palabras, que para ese país no hay stock de ese plan de publicación), el aviso se guardará como borrador.
 
 ### Ejemplos  
 
-* En el siguiente ejemplo no se indica el plan de publicación: 
-
-```
+* En el siguiente ejemplo no se indica el plan de publicación:
+```json
 {
   "portales": [
     {
@@ -462,9 +480,9 @@ Entonces, si quisiéramos publicar un Aviso Tecnología en Bumeran para el país
   ]
 }
 ```
-El request resultado seria: 
 
-```
+El request resultado sería:
+```json
 {
   "result": {
     "bumeran": {
@@ -484,7 +502,7 @@ El request resultado seria:
 
 * En el siguiente ejemplo, la vacante HiringRoom ya estaba vinculada con otro aviso Bumeran: 
 
-```
+```json
 {
   "portales": [
     {
@@ -493,9 +511,9 @@ El request resultado seria:
   ]
 }
 ```
-El request resultado seria: 
+El request resultado sería: 
 
-```
+```json
 {
   "result": {
     "bumeran": {
@@ -511,7 +529,7 @@ El request resultado seria:
 
 * En el siguiente ejemplo publicamos un aviso Tecnologia pais Argentina: 
 
-```
+```json
 {
   "portales": [
     {
@@ -522,9 +540,9 @@ El request resultado seria:
   ]
 }
 ```
-El request resultado seria: 
+El request resultado sería: 
  
-```
+```json
 {
   "result": {
     "bumeran": {
@@ -551,7 +569,7 @@ Para poder obtener los postulantes usaremos el endpoint **GET /integrations/bume
 
 Una vez obtenidos los postulantes, tendremos como respuesta un JSON similar a este (solo se muestran algunos campos, resaltando la estructura)
 
-```
+```json
 {
   "total": 1,
   "size": 20,
@@ -569,27 +587,28 @@ Una vez obtenidos los postulantes, tendremos como respuesta un JSON similar a es
         "id_cv": 1042083763
       },
       "id": 10964244860,
-      "id_postulacion": 10964244860,
+      "id_postulacion": 10964244860
     }
   ]
+}
 ```
 
-* **id_cv** : Es el identificador del CV del postulante
-* **id_postulacion** : Es el identificador de la postulacion en el aviso del postulante
+* **id_cv**: Es el identificador del CV del postulante
+* **id_postulacion**: Es el identificador de la postulacion en el aviso del postulante
 
 ### Obtención del full cv de un postulante
 
 El endpoint anterior obtiene extractos de las postulaciones de los postulantes (no obtiene el cv completo de cada postulante), para poder obtener el cv completo del postulante usaremos el endpoint **GET /integrations/bumeran/postulaciones/{idPostulacion}/curriculums/{idCv}/full**
 
-**AVISO IMPORTANTE** El uso de este endpoint puede ocasionar el consumo de créditos adicionales de vistas de su cuenta de Bumeran (por ejemplo cuando el aviso este vencido e intente acceder al postulante).
+**AVISO IMPORTANTE** El uso de este endpoint puede ocasionar el consumo de créditos adicionales de vistas de su cuenta de Bumeran (por ejemplo cuando el aviso esté vencido e intente acceder al postulante).
 
-Para poder utilizar este endpoint necesitamos 2 datos que los obtenemos del endpoint anterior: **id_cv** y **id_postulacion**. 
+Para poder utilizar este endpoint necesitamos 2 datos que los obtenemos del endpoint anterior: **id_cv** e **id_postulacion**. 
 
-**IMPORTANTE** Al igual que el endpoint anterior, la obtención y el formato de datos del cv del postulante esta sujeto a Bumeran.
+**IMPORTANTE** Al igual que el endpoint anterior, la obtención y el formato de datos del cv del postulante está sujeto a Bumeran.
 
 Al realizar el request, obtendremos un JSON con un formato similar a este (se omiten algunos campos para resaltar la estructura)
 
-```
+```json
 {
   "descripcion": null,
   "referencias": null,
@@ -608,14 +627,14 @@ Al realizar el request, obtendremos un JSON con un formato similar a este (se om
 }
 ```
 
-# Manejo de errores
+## Manejo de errores
 
 La lista de status codes que maneja el HR-API son
 
-* **200** Successfull (Operación exitosa)
-* **201** Successfull (creacion exitosa de algún recurso en el API)
-* **202** Successfull, no data (Operación exitosa sin resultado)
-* **400** Bad Request (Algun dato proveido es invalido)
+* **200** Successful (Operación exitosa)
+* **201** Successful (creación exitosa de algún recurso)
+* **202** Successful, no data (Operación exitosa sin resultado)
+* **400** Bad Request (Algún dato de la solicitud no es válido)
 * **401** Authentication Error (Error de autenticación)
 * **403** Forbidden Error (No se permite acceder a ese recurso)
 * **404** Not Found Error (Recurso no encontrado)
@@ -624,9 +643,8 @@ La lista de status codes que maneja el HR-API son
 
 La estructura que devuelve el API-HR para los codes 200, 201 se especifica en cada endpoint en el swagger
 
-La estructura que devuelve el API-HR para los codes 202 es la siguiente: 
-
-```
+La estructura que devuelve el API-HR para los codes 202 es la siguiente:
+```json
 {
     "result": {
         "message": "There are no results for this search"
@@ -634,9 +652,8 @@ La estructura que devuelve el API-HR para los codes 202 es la siguiente:
 }
 ```
 
-La estructura que devuelve el API-HR para los codes 400, 401, 403 y 404 es la siguiente: 
-
-```
+La estructura que devuelve el API-HR para los codes 400, 401, 403 y 404 es la siguiente:
+```json
 {
   "message": "string",
   "errors": {
@@ -644,9 +661,9 @@ La estructura que devuelve el API-HR para los codes 400, 401, 403 y 404 es la si
   }
 }
 ```
-La estructura que devuelve el API-HR para el code 422 es el siguiente: 
 
-```
+La estructura que devuelve el API-HR para el code 422 es el siguiente:
+```json
 {
   "message": "Validation Error",
   "errors": [
@@ -657,8 +674,4 @@ La estructura que devuelve el API-HR para el code 422 es el siguiente:
   ]
 }
 ```
-
-
-
-
 
