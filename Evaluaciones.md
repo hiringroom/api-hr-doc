@@ -17,6 +17,7 @@ El API HR está preparado para integrarse con aplicaciones de terceros (third-pa
    - **description_link** (opcional) : URL donde se describa o se redirija a la aplicación third-party.
    - **url_pic** : URL del logo del third-party.
    - **redirect_uri**: URL de redirección en donde el third-party obtendrá el codigo de autorización una vez que el cliente autorice la aplicación.
+   - **user_agent**: Identificador que se le dará a cada request que haga el third-party al API HR. El mismo se configurará en la conexión entre las plataformas, y será validado en cada request. 
 
 El protocolo de autenticación que usa el API HR para integraciones es el protocolo OAuth2. 
 
