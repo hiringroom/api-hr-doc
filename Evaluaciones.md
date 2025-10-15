@@ -148,6 +148,7 @@ El JSON que se envía al webhook es el siguiente:
      "apellido": "string",
      "genero": "M" | "F" | "O",
      "email": "string",
+     "telefono" : "string"
    },
    "webhook" : {
      "config_id" : "string",
@@ -164,6 +165,7 @@ El JSON que se envía al webhook es el siguiente:
    - **internal_id**: Identificador interno de la evaluacion del thirdparty.
    - **vacante_id**: Identificador de la vacante configurada para el test.
    - **extra_args**: Argumentos extras que cargó el third-party en la configuración.
+   - **telefono**: Si el postulante cargó un número de teléfono de tipo "Celular/Movil", entonces se envía al webhook con el formato "prefijo+telefono" (ej: "+543880303456"). Si no cumple las condiciones devuelve **null**
 
 Para enviar el resultado de la evaluación a HiringRoom, deberemos utilizar el endpoint **POST /assessment/{assessment_id}**. El mismo debe tener la siguiente estructura:
 
