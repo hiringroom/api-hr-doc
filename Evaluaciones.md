@@ -4,6 +4,7 @@
 - [Autorización](#autorización)
 - [Configurando evaluaciones](#configurando-evaluaciones)
 - [Creando evaluaciones](#creando-evaluaciones)
+- [Manejo de errores](#manejo-de-errores)
 - [Eliminando evaluaciones](#eliminando-evaluaciones)
 - [Cambio de dominio](#cambio-de-dominio)
 
@@ -43,13 +44,22 @@ Cuando el cliente acepte, se enviará al **redirect_uri** provisto anteriormente
 ```
 [redirect_uri]?authCode=[AUTH_CODE]&state=[STATE]
 ```
-El codigo de autorización sólo dura unos segundos, así que si no se pide el **AccessToken** correspondiente lo antes posible, el codigo de autorización quedará inválido. 
+El codigo de autorización sólo dura unos minutos, así que si no se pide el **AccessToken** correspondiente lo antes posible, el codigo de autorización quedará inválido y será necesario realizar nuevamente el proceso de autorización. 
 
 Para obtener el **AccessToken**, se utiliza el endpoint
 
 ```
  POST /oauth2/token
 ```
+
+**Aclaración importante**, el API HR utiliza el concepto de token rotation y el mecanismo se basa en el estándar del protocolo OAuth2, por lo que, por motivos de seguridad los diferentes tokens tienen fecha de caducidad:
+
+```
+ authCode: 5 minutos
+ accessToken: 1 día
+ refreshToken: 2 meses
+```
+El **refreshToken** se actualiza cada vez que se solicita un nuevo **accessToken**. Es crucial que el mecanismo del thirdparty guarde y utilice siempre el **refreshToken** más reciente para evitar cualquier tipo de errores referidos a la autenticación.
 
 # Configurando evaluaciones
 
@@ -194,6 +204,93 @@ Para enviar el resultado de la evaluación a HiringRoom, deberemos utilizar el e
 Cabe aclarar que se pueden enviar múltiples evaluaciones mediante el endpoint anterior. Las mismas se mostrarán en el perfil del postulante de la siguiente manera:
 
 ![10](https://i.imgur.com/fX4rB78.png)
+
+# Manejo de errores
+
+### Webhook de postulaciones (url_webhook)
+
+Una vez creada la evaluación para el postulante, y enviada la información correspondiente al **url_webhook**, Todo third-party que reciba un webhook deberá responder un JSON siguiendo RFC 9457 (Problem Details for HTTP APIs) siendo los mismos estructurados, consistentes y auto-explicativos.
+
+Cualquier respuesta en el rango del 2XX se considera exitosa, es decir que el third-party recibió la información y que la misma será procesada según sus propios criterios.
+
+```
+{
+  "success": true
+}
+```
+
+Cualquier respuesta no exitosa, será considerada como un error que se mostrará en el perfil del postulante en la respectiva sección de assessments:
+
+<img width="1350" height="108" alt="image" src="https://github.com/user-attachments/assets/13652a95-29bc-45d3-96a7-46d622f4a24f" />
+
+Importante: Si bien el email es un requisito obligatorio a la hora de postularse en Hiring Room, pueden llegar a existir postulantes sin este requisito. En caso de que un postulante no tenga email y el mismo sea enviado a una etapa configurada, el perfil mostrará un error, pero hasta que el reclutador no agregue el dato de email, no se enviará al third-party la información a traves de webhook (en este caso el reclutador deberá hacerlo manualmente). 
+
+
+<img width="396" height="133" alt="image" src="https://github.com/user-attachments/assets/6433ffb2-51fe-4970-ab2f-9c962776c8f4" />
+
+Si desde el lado del third-party hubo un error de negocio o validación, vamos a requerir para el estándar la siguiente información como respuesta:
+
+```
+{
+  "title": "<Descripción corta y entendible del problema>",
+  "status": <código HTTP>,
+  "detail": "<Descripción detallada del error>",
+  "code": "<Código interno de error.>",
+}
+```
+Para detallar el response del webhook, se recomienda seguir la siguiente tabla:
+
+<img width="619" height="280" alt="image" src="https://github.com/user-attachments/assets/546078b5-08b6-436f-a771-c98cbba43f78" />
+
+Ejemplos de uso:
+
+⚠️ Ejemplo — Créditos insuficientes
+
+```
+{
+  "title": "No tiene créditos disponibles.",
+  "status": 402,
+  "detail": "No dispone de créditos suficientes para completar la operación.",
+  "code": "INSUFFICIENT_CREDITS"
+}
+```
+⚠️ Ejemplo — Error de validación (422)
+```
+{
+  "title": "Error de validación.",
+  "status": 422,
+  "detail": "El campo 'apellido' es obligatorio.",
+  "code": "VALIDATION_ERROR"
+}
+```
+Ejemplo en JS + express
+
+```
+async function responseWebhook(req, res, next) {
+  try {
+    // Lógica de negocio...
+    // ...
+
+    const errorValidacion = true; // Ejemplo
+
+    if (errorValidacion) {
+      return res.status(402).json({
+        title: "Créditos insuficientes.",
+        status: 402,
+        detail: "No dispone de créditos suficientes para completar la operación.",
+        code: "INSUFFICIENT_CREDITS"
+      });
+    }
+
+    return res.status(200).json({
+      message: "OK"
+    });
+
+  } catch (err) {
+    next(err);
+  }
+}
+```
 
 # Eliminando evaluaciones 
 
