@@ -219,7 +219,13 @@ Cualquier respuesta en el rango del 2XX se considera exitosa, es decir que el th
 }
 ```
 
-Cualquier respuesta no exitosa, será considerada como un error que se mostrará en el perfil del postulante en la respectiva sección de assessments:
+Cualquier respuesta no exitosa, será considerada como un error que se mostrará en el perfil del postulante en la respectiva sección de assessments. 
+
+Nuestro sistema procesa los errores con el siguiente orden de prioridad:
+
+1. **Mensaje Detallado (`detail`)**: Si se incluye este campo, se mostrará tal cual al reclutador. Es ideal para errores dinámicos (ej: "El campo X es inválido").
+2. **Código de Error (`code`)**: Si no hay `detail`, buscamos el código en nuestra tabla de estándares para mostrar el mensaje correspondiente.
+3. **Status HTTP**: Como último recurso, si no se recibe un JSON válido, mostraremos un mensaje genérico basado en el código de estado HTTP (404, 500, etc.).
 
 <img width="1350" height="108" alt="image" src="https://github.com/user-attachments/assets/13652a95-29bc-45d3-96a7-46d622f4a24f" />
 
@@ -240,7 +246,30 @@ Si desde el lado del third-party hubo un error de negocio o validación, vamos a
 ```
 Para detallar el response del webhook, se recomienda seguir la siguiente tabla:
 
-<img width="619" height="280" alt="image" src="https://github.com/user-attachments/assets/546078b5-08b6-436f-a771-c98cbba43f78" />
+| Código de Error (`code`) | Status HTTP | Descripción Sugerida |
+| :--- | :--- | :--- |
+| `MALFORMED_JSON` | 400 | El cuerpo de la solicitud no es un JSON válido. |
+| `INVALID_CREDENTIALS` | 401 | Sesión expirada o no autorizada. |
+| `INSUFFICIENT_CREDITS` | 402 | No dispone de créditos suficientes para completar la operación. |
+| `ACCOUNT_PLAN_UPGRADE_REQUIRED` | 402 | Se requiere una actualización de plan para realizar esta acción. |
+| `FORBIDDEN_ACTION` | 403 | Acción no permitida o permisos insuficientes. |
+| `ACCOUNT_PLAN_EXPIRED` | 403 | El plan de su cuenta ha expirado. |
+| `ACCOUNT_PLAN_NOT_ACTIVE` | 403 | Su cuenta no posee un plan activo o créditos suficientes. |
+| `NOT_FOUND` | 404 | El recurso solicitado no existe. |
+| `ACCOUNT_NOT_FOUND` | 404 | No se encontró la empresa en nuestros registros. |
+| `CLIENT_NOT_FOUND` | 404 | Cliente no encontrado. |
+| `SCALES_NOT_FOUND` | 404 | No se encontraron escalas configuradas en el perfil. |
+| `CANDIDATE_VACANCY_MAX_REACHED` | 409 | Se ha alcanzado el máximo de candidatos para esta vacante. |
+| `PROCESS_EXPIRED` | 410 | El proceso de envío para este candidato ha expirado. |
+| `VALIDATION_ERROR` | 422 | Error de validación en los campos enviados. |
+| `POSTULANT_EMAIL_MISSING` | 422 | El postulante no posee un email válido. |
+| `POSTULANT_PHONE_INVALID` | 422 | El postulante no posee un teléfono válido. |
+| `TOO_MANY_REQUESTS` | 429 | Demasiadas solicitudes, intente nuevamente más tarde. |
+| `PROCESS_CREATION_ERROR` | 500 | Error interno al intentar crear el proceso. |
+| `SERVER_ERROR` | 500 | Error interno en el servidor del proveedor de evaluaciones. |
+| `BAD_GATEWAY` | 502 | Puerta de enlace incorrecta, el servicio no está disponible. |
+| `SERVICE_UNAVAILABLE` | 503 | Servicio de evaluaciones temporalmente fuera de servicio. |
+| `GATEWAY_TIMEOUT` | 504 | Tiempo de espera agotado, intente nuevamente. |
 
 Ejemplos de uso:
 
@@ -263,9 +292,9 @@ Ejemplos de uso:
   "code": "VALIDATION_ERROR"
 }
 ```
-Ejemplo en JS + express
+Ejemplo en JS + Express
 
-```
+```javascript
 async function responseWebhook(req, res, next) {
   try {
     // Lógica de negocio...
@@ -274,16 +303,18 @@ async function responseWebhook(req, res, next) {
     const errorValidacion = true; // Ejemplo
 
     if (errorValidacion) {
-      return res.status(402).json({
-        title: "Créditos insuficientes.",
-        status: 402,
-        detail: "No dispone de créditos suficientes para completar la operación.",
-        code: "INSUFFICIENT_CREDITS"
-      });
+      // Importante: Setear el header conforme a RFC 9457
+      return res.status(422)
+        .json({
+          title: "Error de validación.",
+          status: 422,
+          detail: "El campo 'apellido' es obligatorio.",
+          code: "VALIDATION_ERROR"
+        });
     }
 
     return res.status(200).json({
-      message: "OK"
+      success: true
     });
 
   } catch (err) {
