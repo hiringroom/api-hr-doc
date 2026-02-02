@@ -209,90 +209,121 @@ Cabe aclarar que se pueden enviar múltiples evaluaciones mediante el endpoint a
 
 ### Webhook de postulaciones (url_webhook)
 
-Una vez creada la evaluación para el postulante, y enviada la información correspondiente al **url_webhook**, Todo third-party que reciba un webhook deberá responder un JSON siguiendo RFC 9457 (Problem Details for HTTP APIs) siendo los mismos estructurados, consistentes y auto-explicativos.
+Una vez creada la evaluación para el postulante, y enviada la información correspondiente al **url_webhook**, el third-party deberá responder con un código de estado HTTP apropiado y, en caso de error, un JSON estructurado que permita identificar y comunicar el problema de forma clara.
 
-Cualquier respuesta en el rango del 2XX se considera exitosa, es decir que el third-party recibió la información y que la misma será procesada según sus propios criterios.
+## Respuestas exitosas
 
-```
+Cualquier respuesta en el rango **2XX** se considera exitosa, indicando que el third-party recibió la información correctamente y la procesará según sus propios criterios.
+
+**Ejemplo de respuesta exitosa:**
+
+```json
 {
   "success": true
 }
 ```
 
-Cualquier respuesta no exitosa, será considerada como un error que se mostrará en el perfil del postulante en la respectiva sección de assessments. 
+## Respuestas de error
 
-Nuestro sistema procesa los errores con el siguiente orden de prioridad:
-
-1. **Mensaje Detallado (`detail`)**: Si se incluye este campo, se mostrará tal cual al reclutador. Es ideal para errores dinámicos (ej: "El campo X es inválido").
-2. **Código de Error (`code`)**: Si no hay `detail`, buscamos el código en nuestra tabla de estándares para mostrar el mensaje correspondiente.
-3. **Status HTTP**: Como último recurso, si no se recibe un JSON válido, mostraremos un mensaje genérico basado en el código de estado HTTP (404, 500, etc.).
+Cualquier respuesta **no exitosa** (fuera del rango 2XX) será considerada como un error y se mostrará en el perfil del postulante en la sección de assessments.
 
 <img width="1350" height="108" alt="image" src="https://github.com/user-attachments/assets/13652a95-29bc-45d3-96a7-46d622f4a24f" />
 
-Importante: Si bien el email es un requisito obligatorio a la hora de postularse en Hiring Room, pueden llegar a existir postulantes sin este requisito. En caso de que un postulante no tenga email y el mismo sea enviado a una etapa configurada, el perfil mostrará un error, pero hasta que el reclutador no agregue el dato de email, no se enviará al third-party la información a traves de webhook (en este caso el reclutador deberá hacerlo manualmente). 
+### Formato recomendado: RFC 9457 (Problem Details for HTTP APIs)
 
+**Recomendamos enfáticamente** utilizar el estándar RFC 9457, que proporciona respuestas estructuradas, consistentes y auto-explicativas:
 
-<img width="396" height="133" alt="image" src="https://github.com/user-attachments/assets/6433ffb2-51fe-4970-ab2f-9c962776c8f4" />
-
-Si desde el lado del third-party hubo un error de negocio o validación, vamos a requerir para el estándar la siguiente información como respuesta:
-
-```
+```json
 {
   "title": "<Descripción corta y entendible del problema>",
   "status": <código HTTP>,
   "detail": "<Descripción detallada del error>",
-  "code": "<Código interno de error.>",
+  "code": "<Código interno de error>"
 }
 ```
+
+**Campos:**
+
+- **`title`** (obligatorio): Resumen breve del error (ej: "Error de validación")
+- **`status`** (obligatorio): Código de estado HTTP que refleja el tipo de error
+- **`detail`** (obligatorio): Descripción detallada que se mostrará al reclutador (debe ser autoexplicativa, corta y clara)
+- **`code`** (obligatorio): Código interno de error (se encuentra en la tabla de errores)
+
+### Importancia del estándar RFC 9457
+
+Si bien el usuario podrá reintentar manualmente el envío del test ocurrido un error, la experiencia de usuario se verá afectada negativamente, ya que **no podrá identificar claramente** qué error ocurrió al enviar los tests y deberá **comunicarse directamente con el third-party** para entender qué está pasando.
+
+### Validación interna
+
+⚠️ **Importante**: Si bien el email es un requisito obligatorio a la hora de postularse en Hiring Room, pueden llegar a existir postulantes sin este requisito. En caso de que un postulante no tenga email y el mismo sea enviado a una etapa configurada, el perfil mostrará un error, pero hasta que el reclutador no agregue el dato de email, no se enviará al third-party la información a través de webhook (en este caso el reclutador deberá hacerlo manualmente).
+
+<img width="396" height="133" alt="image" src="https://github.com/user-attachments/assets/6433ffb2-51fe-4970-ab2f-9c962776c8f4" />
+
+### Tabla de códigos
+
 Para detallar el response del webhook, se recomienda seguir la siguiente tabla:
 
-| Código de Error (`code`) | Status HTTP | Descripción Sugerida |
-| :--- | :--- | :--- |
-| `MALFORMED_JSON` | 400 | El cuerpo de la solicitud no es un JSON válido. |
-| `INVALID_CREDENTIALS` | 401 | Sesión expirada o no autorizada. |
-| `INSUFFICIENT_CREDITS` | 402 | No dispone de créditos suficientes para completar la operación. |
-| `ACCOUNT_PLAN_UPGRADE_REQUIRED` | 402 | Se requiere una actualización de plan para realizar esta acción. |
-| `FORBIDDEN_ACTION` | 403 | Acción no permitida o permisos insuficientes. |
-| `ACCOUNT_PLAN_EXPIRED` | 403 | El plan de su cuenta ha expirado. |
-| `ACCOUNT_PLAN_NOT_ACTIVE` | 403 | Su cuenta no posee un plan activo o créditos suficientes. |
-| `NOT_FOUND` | 404 | El recurso solicitado no existe. |
-| `ACCOUNT_NOT_FOUND` | 404 | No se encontró la empresa en nuestros registros. |
-| `CLIENT_NOT_FOUND` | 404 | Cliente no encontrado. |
-| `SCALES_NOT_FOUND` | 404 | No se encontraron escalas configuradas en el perfil. |
-| `CANDIDATE_VACANCY_MAX_REACHED` | 409 | Se ha alcanzado el máximo de candidatos para esta vacante. |
-| `PROCESS_EXPIRED` | 410 | El proceso de envío para este candidato ha expirado. |
-| `VALIDATION_ERROR` | 422 | Error de validación en los campos enviados. |
-| `POSTULANT_EMAIL_MISSING` | 422 | El postulante no posee un email válido. |
-| `POSTULANT_PHONE_INVALID` | 422 | El postulante no posee un teléfono válido. |
-| `TOO_MANY_REQUESTS` | 429 | Demasiadas solicitudes, intente nuevamente más tarde. |
-| `PROCESS_CREATION_ERROR` | 500 | Error interno al intentar crear el proceso. |
-| `SERVER_ERROR` | 500 | Error interno en el servidor del proveedor de evaluaciones. |
-| `BAD_GATEWAY` | 502 | Puerta de enlace incorrecta, el servicio no está disponible. |
-| `SERVICE_UNAVAILABLE` | 503 | Servicio de evaluaciones temporalmente fuera de servicio. |
-| `GATEWAY_TIMEOUT` | 504 | Tiempo de espera agotado, intente nuevamente. |
+| Código de Error (`code`)        | Status HTTP | Descripción Sugerida                                             |
+| :------------------------------ | :---------- | :--------------------------------------------------------------- |
+| `MALFORMED_JSON`                | 400         | El cuerpo de la solicitud no es un JSON válido.                  |
+| `INVALID_CREDENTIALS`           | 401         | Sesión expirada o no autorizada.                                 |
+| `INSUFFICIENT_CREDITS`          | 402         | No dispone de créditos suficientes para completar la operación.  |
+| `ACCOUNT_PLAN_UPGRADE_REQUIRED` | 402         | Se requiere una actualización de plan para realizar esta acción. |
+| `FORBIDDEN_ACTION`              | 403         | Acción no permitida o permisos insuficientes.                    |
+| `ACCOUNT_PLAN_EXPIRED`          | 403         | El plan de su cuenta ha expirado.                                |
+| `ACCOUNT_PLAN_NOT_ACTIVE`       | 403         | Su cuenta no posee un plan activo o créditos suficientes.        |
+| `ACCOUNT_NOT_FOUND`             | 404         | No se encontró la empresa en nuestros registros.                 |
+| `CLIENT_NOT_FOUND`              | 404         | Cliente no encontrado.                                           |
+| `SCALES_NOT_FOUND`              | 404         | No se encontraron escalas configuradas en el perfil.             |
+| `CANDIDATE_VACANCY_MAX_REACHED` | 409         | Se ha alcanzado el máximo de candidatos para esta vacante.       |
+| `PROCESS_EXPIRED`               | 410         | El proceso de envío para este candidato ha expirado.             |
+| `VALIDATION_ERROR`              | 422         | Error de validación en los campos enviados.                      |
+| `POSTULANT_EMAIL_MISSING`       | 422         | El postulante no posee un email válido.                          |
+| `POSTULANT_PHONE_INVALID`       | 422         | El postulante no posee un teléfono válido.                       |
+| `PROCESS_CREATION_ERROR`        | 500         | Error interno al intentar crear el proceso.                      |
+| `SERVER_ERROR`                  | 500         | Error interno en el servidor del proveedor de evaluaciones.      |
+| `SERVICE_UNAVAILABLE`           | 503         | Servicio de evaluaciones temporalmente fuera de servicio.        |
 
-Ejemplos de uso:
+## Ejemplos de respuestas de error
 
-⚠️ Ejemplo — Créditos insuficientes
+**Ejemplo 1 — Créditos insuficientes (402)**
 
-```
+```json
 {
-  "title": "No tiene créditos disponibles.",
+  "title": "Créditos insuficientes",
   "status": 402,
   "detail": "No dispone de créditos suficientes para completar la operación.",
   "code": "INSUFFICIENT_CREDITS"
 }
 ```
-⚠️ Ejemplo — Error de validación (422)
-```
+
+**Ejemplo 2 — Error de validación (422)**
+
+```json
 {
-  "title": "Error de validación.",
+  "title": "Error de validación",
   "status": 422,
   "detail": "El campo 'apellido' es obligatorio.",
   "code": "VALIDATION_ERROR"
 }
 ```
-Ejemplo en JS + Express
+
+**Ejemplo 3 — Servicio no disponible (503)**
+
+```json
+{
+  "title": "Servicio temporalmente no disponible",
+  "status": 503,
+  "detail": "El servicio de evaluaciones está en mantenimiento. Intente nuevamente en 30 minutos.",
+  "code": "SERVICE_UNAVAILABLE"
+}
+```
+
+⚠️ **Importante**: En caso de enviar un `code` que no se encuentre en la tabla de errores, se mostrará un error genérico en el detalle del error en el postulante.
+
+## Implementación en código
+
+### Ejemplo en JavaScript + Express (RFC 9457)
 
 ```javascript
 async function responseWebhook(req, res, next) {
@@ -304,19 +335,17 @@ async function responseWebhook(req, res, next) {
 
     if (errorValidacion) {
       // Importante: Setear el header conforme a RFC 9457
-      return res.status(422)
-        .json({
-          title: "Error de validación.",
-          status: 422,
-          detail: "El campo 'apellido' es obligatorio.",
-          code: "VALIDATION_ERROR"
-        });
+      return res.status(422).json({
+        title: "Error de validación.",
+        status: 422,
+        detail: "El campo 'apellido' es obligatorio.",
+        code: "VALIDATION_ERROR",
+      });
     }
 
     return res.status(200).json({
-      success: true
+      success: true,
     });
-
   } catch (err) {
     next(err);
   }
