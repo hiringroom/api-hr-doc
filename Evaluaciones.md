@@ -242,10 +242,12 @@ Cualquier respuesta **no exitosa** (fuera del rango 2XX) será considerada como 
 }
 ```
 
+Se recomienda responder con el header `Content-Type: application/problem+json`, definido por RFC 9457. También se acepta `application/json` con los mismos campos.
+
 **Campos:**
 
 - **`title`** (obligatorio): Resumen breve del error (ej: "Error de validación")
-- **`status`** (obligatorio): Código de estado HTTP que refleja el tipo de error
+- **`status`** (obligatorio): Código de estado HTTP que refleja el tipo de error; debe coincidir con el status HTTP de la respuesta
 - **`detail`** (obligatorio): Descripción detallada que se mostrará al reclutador (debe ser autoexplicativa, corta y clara)
 - **`code`** (obligatorio): Código interno de error (se encuentra en la tabla de errores)
 
@@ -334,8 +336,8 @@ async function responseWebhook(req, res, next) {
     const errorValidacion = true; // Ejemplo
 
     if (errorValidacion) {
-      // Importante: Setear el header conforme a RFC 9457
-      return res.status(422).json({
+      // Importante: Setear el header conforme a RFC 9457 (res.json conserva el Content-Type ya definido)
+      return res.status(422).type('application/problem+json').json({
         title: "Error de validación.",
         status: 422,
         detail: "El campo 'apellido' es obligatorio.",
